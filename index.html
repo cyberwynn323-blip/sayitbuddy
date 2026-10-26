@@ -464,44 +464,109 @@ var audio = new Audio(); audio.preload = "auto"; audio.volume = 1;
    that line — tuned loud, clear and deep, preferring a man's voice —
    and the next tap goes straight back to the man's recording first.
    One glitch can never flip the whole session to the device voice.
-   Two browser quirks shape that last-resort code:
+   Three browser quirks shape that last-resort code:
    - Safari only lets the device voice start after a tap has "unlocked"
      it, so the first tap anywhere primes it with a silent utterance.
    - Safari drops an utterance spoken in the same moment as a cancel(),
      so a busy voice is cancelled first and the new words are spoken a
-     breath later; and an utterance spoken before the browser has loaded
-     its voice list can come out silent, so a real voice is picked. */
+     breath later.
+   - The browser's voice list loads LATE — at the first tap it is often
+     still empty, and picking a voice then silently lands on the browser
+     default, which on most phones is a woman's voice: the "robot
+     chick". The same trap waits inside the list itself — the first
+     en-US voice is usually that same woman's voice. So the fallback
+     waits for the list to actually arrive, picks a man's voice by name
+     before any other English voice, never picks a known woman's voice,
+     and takes the utterance language from the chosen voice (forcing
+     "en-US" over a man's en-GB voice makes some browsers drop the
+     voice and use the default instead). If a device truly offers no
+     man's voice at all, pitch is the one lever left: the default voice
+     is deepened hard rather than left sounding as-is. */
 var synth = ("speechSynthesis" in window) ? window.speechSynthesis : null;
 var voiceList = [];
+var voicesWaiters = [];
 function loadVoices(){
   if (!synth) return;
   try { var v = synth.getVoices(); if (v && v.length) voiceList = v; } catch(e){}
+  if (voiceList.length && voicesWaiters.length){
+    var ws = voicesWaiters; voicesWaiters = [];
+    ws.forEach(function(cb){ try { cb(); } catch(e){} });
+  }
 }
 if (synth){
   loadVoices();
   if ("onvoiceschanged" in synth) synth.onvoiceschanged = loadVoices;
 }
+/* Run cb once the voice list has actually arrived — immediately if it is
+   already here, otherwise when the browser announces it, and never wait
+   more than a breath (700ms) so a tap never feels ignored. */
+function whenVoicesReady(cb){
+  loadVoices();
+  if (!synth || voiceList.length) { cb(); return; }
+  var fired = false;
+  function go(){ if (!fired){ fired = true; cb(); } }
+  voicesWaiters.push(go);
+  setTimeout(go, 700);
+}
+/* Voice picking, in priority order. Men's names are tried in preference
+   order across the whole list first (Daniel / Aaron / Alex / David…),
+   then any voice whose name says "male", then any English voice that is
+   not a known woman's voice and not a novelty voice. A known woman's
+   voice is NEVER picked: on most phones the first en-US voice is one
+   (Samantha and friends), and falling back to "first English voice" is
+   exactly how the fallback kept sounding like a robot chick. Returns
+   { v: voice|null, male: bool } — male says a man's voice was found. */
+var MALE_NAMES = ["google uk english male",
+  "microsoft david","microsoft guy","microsoft christopher","microsoft tony",
+  "microsoft ryan","microsoft eric","microsoft roger","microsoft brandon",
+  "microsoft davis","microsoft mark","microsoft george","microsoft james",
+  "microsoft richard","microsoft andrew","microsoft brian","microsoft william",
+  "daniel","aaron","alex","arthur","fred","tom","george","oliver","gordon",
+  "ralph","albert","junior","eddy","reed","rocko"];
+var FEMALE_NAMES = ["samantha","karen","moira","fiona","serena","victoria",
+  "allison","ava","susan","catherine","joana","zira","aria","jenny",
+  "michelle","ana","elsa","sara","laura","heera","veena","lekha","leela",
+  "nicky","kate","stephanie","tessa","google us english",
+  "google uk english female"];
+var NOVELTY_NAMES = ["bells","boing","bubbles","cellos","zarvox","trinoids",
+  "wobble","whisper","jester","organ","bad news","good news","bahh",
+  "superstar","deranged","hysterical","princess"];
 function pickVoice(){
   loadVoices();
-  /* A man's voice first — the app's voice is a man's, so the last-resort
-     device voice should sound as close to it as the device allows. */
-  var MALE = ["google uk english male","microsoft david","microsoft guy","microsoft christopher","microsoft tony","microsoft ryan","alex","daniel","fred","aaron","arthur","tom"];
-  var enUS = null, en = null, def = null;
-  for (var i = 0; i < voiceList.length; i++){
-    var v = voiceList[i];
-    var nm = (v.name || "").toLowerCase();
-    if (nm.indexOf("female") !== -1) continue;
-    for (var j = 0; j < MALE.length; j++){ if (nm.indexOf(MALE[j]) !== -1) return v; }
-  }
-  for (var k = 0; k < voiceList.length; k++){
-    var w = voiceList[k];
-    if (w.default) def = w;
-    if (w.lang && w.lang.toLowerCase().indexOf("en") === 0){
-      if (w.lang.toLowerCase().indexOf("en-us") === 0 && !enUS) enUS = w;
-      if (!en) en = w;
+  function nm(v){ return (v.name || "").toLowerCase(); }
+  function has(list, v){ var n = nm(v); for (var i = 0; i < list.length; i++){ if (n.indexOf(list[i]) !== -1) return true; } return false; }
+  function isFemale(v){ return nm(v).indexOf("female") !== -1 || has(FEMALE_NAMES, v); }
+  function isEn(v){ return v.lang && v.lang.toLowerCase().indexOf("en") === 0; }
+  var i, j, v;
+  /* 1) A man's voice by name, in preference order — English first. */
+  for (j = 0; j < MALE_NAMES.length; j++){
+    for (i = 0; i < voiceList.length; i++){
+      v = voiceList[i];
+      if (isEn(v) && !isFemale(v) && nm(v).indexOf(MALE_NAMES[j]) !== -1) return { v: v, male: true };
     }
   }
-  return enUS || en || def || (voiceList.length ? voiceList[0] : null);
+  for (j = 0; j < MALE_NAMES.length; j++){
+    for (i = 0; i < voiceList.length; i++){
+      v = voiceList[i];
+      if (!isFemale(v) && nm(v).indexOf(MALE_NAMES[j]) !== -1) return { v: v, male: true };
+    }
+  }
+  /* 2) Any voice whose name says "male" (some Android voices do). */
+  for (i = 0; i < voiceList.length; i++){
+    v = voiceList[i];
+    if (!isFemale(v) && nm(v).indexOf("male") !== -1) return { v: v, male: true };
+  }
+  /* 3) An English voice that is neither a known woman's nor a novelty. */
+  for (i = 0; i < voiceList.length; i++){
+    v = voiceList[i];
+    if (isEn(v) && !isFemale(v) && !has(NOVELTY_NAMES, v)) return { v: v, male: false };
+  }
+  /* 4) Anything that is not a known woman's voice. */
+  for (i = 0; i < voiceList.length; i++){
+    v = voiceList[i];
+    if (!isFemale(v) && !has(NOVELTY_NAMES, v)) return { v: v, male: false };
+  }
+  return { v: null, male: false };
 }
 var speechPrimed = false;
 function primeSpeech(){
@@ -522,9 +587,22 @@ function speakFallback(text, then){
   if (!synth || !text) { finish(); return; }
   function speakNow(){
     try {
+      var pick = pickVoice();
       var u = new SpeechSynthesisUtterance(text);
-      u.lang = "en-US"; u.volume = 1; u.rate = 1; u.pitch = 0.85;
-      var v = pickVoice(); if (v) u.voice = v;
+      if (pick.v) {
+        u.voice = pick.v;
+        /* The utterance language comes FROM the chosen voice. Forcing
+           "en-US" over a man's en-GB voice makes some browsers ignore
+           the voice and speak with the (woman's) default instead. */
+        if (pick.v.lang) u.lang = pick.v.lang;
+      } else {
+        u.lang = "en-US";
+      }
+      u.volume = 1; u.rate = 0.98;
+      /* A confirmed man's voice speaks at a natural depth. If the device
+         offered no man's voice at all, deepen whatever speaks as far as
+         pitch goes — it is the one lever every browser honors. */
+      u.pitch = pick.male ? 0.9 : 0.55;
       u.onend = finish; u.onerror = finish;
       try { synth.resume(); } catch(e){}
       synth.speak(u);
@@ -533,14 +611,19 @@ function speakFallback(text, then){
       setTimeout(finish, Math.max(3000, text.length * 240));
     } catch(e){ finish(); }
   }
-  try {
-    if (synth.speaking || synth.pending){
-      synth.cancel();
-      setTimeout(speakNow, 90); /* Safari drops a speak() issued right after cancel() */
-    } else {
-      speakNow();
-    }
-  } catch(e){ speakNow(); }
+  function go(){
+    try {
+      if (synth.speaking || synth.pending){
+        synth.cancel();
+        setTimeout(speakNow, 90); /* Safari drops a speak() issued right after cancel() */
+      } else {
+        speakNow();
+      }
+    } catch(e){ speakNow(); }
+  }
+  /* Wait for the voice list before choosing — picking while the list is
+     still empty is how the woman's default voice kept winning. */
+  whenVoicesReady(go);
 }
 var playToken = 0;
 function play(file, then, sayText){
