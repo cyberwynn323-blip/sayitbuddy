@@ -447,11 +447,24 @@ function learnedCount(){ return Object.keys(S.learned).filter(function(k){return
 function totalPoints(){ return learnedCount() + S.gamesWon; }
 
 var $ = function(id){ return document.getElementById(id); };
-var audio = new Audio(); audio.preload = "auto";
-/* Sound must never fail silently. If the recorded MP3 can't be played on
-   the copy being viewed (missing file, blocked, bad format), the device's
-   own voice speaks the same words instead — so there is always sound.
-   Two browser quirks shape the device-voice code below:
+var audio = new Audio(); audio.preload = "auto"; audio.volume = 1;
+/* The voice is the recorded man's voice — every spoken line is a real
+   recording, played loud (volume 1). That is how the app was built, and
+   nothing replaces it. Playback follows the rules that keep one shared
+   audio element reliable:
+   - Replaying the clip that is already loaded rewinds it instead of
+     reassigning its src — reassigning the current src can wedge a
+     WebKit element at "ended", so it plays nothing.
+   - A play() interrupted by a newer tap is not a failure.
+   - A watchdog finishes any wait whose "ended" event gets swallowed,
+     so a stuck element can never mute the plays that come after it.
+   The device's own speech survives only as a last resort for a single
+   line whose recording truly cannot load on the copy being viewed
+   (for example a one-file copy with no audio folder): it speaks just
+   that line — tuned loud, clear and deep, preferring a man's voice —
+   and the next tap goes straight back to the man's recording first.
+   One glitch can never flip the whole session to the device voice.
+   Two browser quirks shape that last-resort code:
    - Safari only lets the device voice start after a tap has "unlocked"
      it, so the first tap anywhere primes it with a silent utterance.
    - Safari drops an utterance spoken in the same moment as a cancel(),
@@ -470,16 +483,25 @@ if (synth){
 }
 function pickVoice(){
   loadVoices();
-  var en = null, def = null;
+  /* A man's voice first — the app's voice is a man's, so the last-resort
+     device voice should sound as close to it as the device allows. */
+  var MALE = ["google uk english male","microsoft david","microsoft guy","microsoft christopher","microsoft tony","microsoft ryan","alex","daniel","fred","aaron","arthur","tom"];
+  var enUS = null, en = null, def = null;
   for (var i = 0; i < voiceList.length; i++){
     var v = voiceList[i];
-    if (v.default) def = v;
-    if (v.lang && v.lang.toLowerCase().indexOf("en") === 0){
-      if (v.lang.toLowerCase().indexOf("en-us") === 0) return v;
-      if (!en) en = v;
+    var nm = (v.name || "").toLowerCase();
+    if (nm.indexOf("female") !== -1) continue;
+    for (var j = 0; j < MALE.length; j++){ if (nm.indexOf(MALE[j]) !== -1) return v; }
+  }
+  for (var k = 0; k < voiceList.length; k++){
+    var w = voiceList[k];
+    if (w.default) def = w;
+    if (w.lang && w.lang.toLowerCase().indexOf("en") === 0){
+      if (w.lang.toLowerCase().indexOf("en-us") === 0 && !enUS) enUS = w;
+      if (!en) en = w;
     }
   }
-  return en || def || (voiceList.length ? voiceList[0] : null);
+  return enUS || en || def || (voiceList.length ? voiceList[0] : null);
 }
 var speechPrimed = false;
 function primeSpeech(){
@@ -501,7 +523,7 @@ function speakFallback(text, then){
   function speakNow(){
     try {
       var u = new SpeechSynthesisUtterance(text);
-      u.lang = "en-US"; u.rate = 0.95;
+      u.lang = "en-US"; u.volume = 1; u.rate = 1; u.pitch = 0.85;
       var v = pickVoice(); if (v) u.voice = v;
       u.onend = finish; u.onerror = finish;
       try { synth.resume(); } catch(e){}
@@ -521,33 +543,58 @@ function speakFallback(text, then){
   } catch(e){ speakNow(); }
 }
 var playToken = 0;
-var filesBroken = false; /* set once a recorded voice file fails on this copy */
 function play(file, then, sayText){
   var token = ++playToken;
-  if (filesBroken){
-    /* The recorded files aren't on this copy — go straight to the device
-       voice, inside the tap when there is one, instead of failing first. */
-    if (sayText) speakFallback(sayText, then);
-    else if (then) setTimeout(then, 60);
-    return;
-  }
   var settled = false;
+  var watchdog = null;
+  function finish(){
+    if (settled) return;
+    settled = true;
+    if (watchdog) clearTimeout(watchdog);
+    if (token === playToken && then) then();
+  }
   function fail(){
+    /* One line's recording could not play on this copy. Speak just this
+       line with the device voice — never latch: the next tap tries the
+       man's recording first again, so his voice always comes back. */
     if (settled || token !== playToken) return;
     settled = true;
-    filesBroken = true;
+    if (watchdog) clearTimeout(watchdog);
     if (sayText) speakFallback(sayText, then);
-    else if (then) setTimeout(then, 900);
+    else if (then) setTimeout(then, 60);
   }
-  try { audio.pause(); } catch(e){}
+  function start(){
+    audio.volume = 1;
+    var pr = audio.play();
+    if (pr && pr.catch) pr.catch(function(err){
+      if (err && err.name === "AbortError") return; /* a newer play took over — not a failure */
+      fail();
+    });
+  }
+  /* If "ended" never arrives, the wait still finishes: allow the clip's
+     length plus a margin once it is known, a generous 8s until then. */
+  watchdog = setTimeout(finish, 8000);
+  audio.onloadedmetadata = function(){
+    if (settled || !watchdog) return;
+    var d = audio.duration;
+    if (isFinite(d) && d > 0){ clearTimeout(watchdog); watchdog = setTimeout(finish, d * 1000 + 2500); }
+  };
   audio.onerror = function(){ fail(); };
-  audio.onended = function(){ if (token === playToken && then) then(); };
-  audio.src = "assets/audio/" + file;
-  var pr = audio.play();
-  if (pr && pr.catch) pr.catch(function(err){
-    if (err && err.name === "AbortError") return; /* a newer play took over */
-    fail();
-  });
+  audio.onended = function(){ finish(); };
+  try {
+    var url = new URL("assets/audio/" + file, document.baseURI).href;
+    if (audio.src === url && audio.readyState > 0){
+      /* Same clip again (same word, tapped again): rewind the loaded
+         recording and replay it — do not reassign src. */
+      try { audio.currentTime = 0; } catch(e){}
+      start();
+    } else {
+      try { audio.pause(); } catch(e){}
+      audio.src = "assets/audio/" + file;
+      try { audio.load(); } catch(e){}
+      start();
+    }
+  } catch(e){ fail(); }
 }
 function playWord(w, then){ play("word-" + w.key + ".mp3", then, w.hear); }
 function playSaid(w){ play("said-" + w.key + ".mp3", null, "Great job! You said " + w.word.toLowerCase() + "!"); }
