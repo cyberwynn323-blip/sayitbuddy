@@ -71,6 +71,9 @@
   .wordimg-wrap img{width:100%;aspect-ratio:1/1;object-fit:contain;background:#fff}
   #colorCanvas{position:absolute;inset:0;width:100%;height:100%;touch-action:none;display:none}
   .wordimg-wrap.coloring #colorCanvas{display:block}
+  .picfallback{display:grid;place-items:center;aspect-ratio:1/1;width:100%;background:#fff;font-size:150px;line-height:1}
+  .choice .picfallback{font-size:72px}
+  .memcard .picfallback{font-size:44px;background:transparent;height:100%}
   .bigword{font-family:"Baloo 2",cursive;font-weight:800;font-size:clamp(44px,9vw,68px);line-height:1;margin:8px 0 2px}
   .sayphrase{font-size:22px;font-weight:800;color:var(--teal-deep)}
   .grownline{color:var(--ink2);font-size:16px;margin-top:4px}
@@ -168,7 +171,6 @@
   .mathq{font-family:"Baloo 2",cursive;font-size:30px;font-weight:800}
   .mathopt{min-width:72px;min-height:60px;border:2px solid var(--line);background:var(--surface);color:var(--ink);border-radius:14px;font-weight:900;font-size:21px}
   .stripe-btn{display:flex;width:100%;min-height:78px;align-items:center;justify-content:center;border-radius:16px;background:var(--purple);color:#fff;font-family:"Baloo 2",cursive;font-weight:800;font-size:23px;text-decoration:none;text-align:center;padding:12px}
-  .unlock-btn{width:100%;min-height:72px;border:none;border-radius:16px;background:var(--green);color:#fff;font-weight:900;font-size:19px;margin-top:12px;padding:12px}
   .unlocked-banner{background:var(--green-soft);border:2px solid var(--green);border-radius:16px;padding:16px;text-align:center;font-weight:900;font-size:19px}
   .grown-card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:22px;box-shadow:var(--shadow);margin-bottom:18px}
   .grown-card h2{font-size:26px;margin-bottom:8px}
@@ -232,6 +234,7 @@
       <div class="wordcount" id="wordCount"></div>
       <div class="wordimg-wrap" id="wordImgWrap">
         <img id="wordImg" src="" alt="" width="600" height="600" />
+        <div class="picfallback" id="wordPicFallback" role="img" hidden></div>
         <canvas id="colorCanvas" width="600" height="600" aria-label="Coloring area — draw with your finger or mouse"></canvas>
       </div>
       <div class="bigword" id="wordText"></div>
@@ -241,7 +244,7 @@
 
       <div class="bigbtns">
         <button class="bigbtn btn-hear" id="btnHear">🔊 Hear It<small>Listen to the word</small></button>
-        <button class="bigbtn btn-say" id="btnSay">🎤 Say It<small>Tap, then say the word</small></button>
+        <button class="bigbtn btn-say" id="btnSay">🎤 Say It<small>Hear it, then say it</small></button>
         <button class="bigbtn btn-color" id="btnColor">🖍️ Color It<small>Color the picture</small></button>
         <button class="bigbtn btn-said" id="btnSaid">✅ I Said It!<small>Every try earns a star</small></button>
       </div>
@@ -269,7 +272,7 @@
     <div class="duo">
       <div class="card">
         <h2>🤖 Buddy the Robot</h2>
-        <p class="sub">Buddy builds up as you learn. Every 10 stars and games adds a new piece!</p>
+        <p class="sub">Buddy is here from the start! His pale pieces fill in with color as you learn — every 10 stars and games builds a new piece.</p>
         <div class="buddy-stage" id="buddyStage"></div>
         <ul class="piece-list" id="pieceList"></ul>
         <div id="outfitArea"></div>
@@ -323,8 +326,7 @@
           <div id="payUnlocked"></div>
           <div id="payButtons">
             <a class="stripe-btn" href="https://buy.stripe.com/cNi6oHdTG93BavU93l7Re00" target="_blank" rel="noopener">Pay $4.99 with Stripe 💳</a>
-            <button class="unlock-btn" id="stripeDoneBtn">I completed my Stripe payment — unlock the outfits pack ✅</button>
-            <p style="margin-top:10px;font-size:14px">Payments are handled securely by Stripe. After paying, come back to this tab and tap the green button to turn the outfits on, on this device. You can check any payment any time in your Stripe dashboard.</p>
+            <p style="margin-top:10px;font-size:14px">Payments are handled securely by Stripe. When your payment goes through, Stripe sends you back to this page and the outfits pack turns on by itself, on this device — there is no unlock button, so the pack can only turn on after a real payment. You can check any payment any time in your Stripe dashboard.</p>
           </div>
         </div>
       </div>
@@ -334,7 +336,7 @@
       <h2>How Say It Buddy works</h2>
       <ul>
         <li><strong>All 50 words are free forever</strong> — the full word set from <em>Say It &amp; Color It!</em> by Luke Wynn. Nothing about learning is ever locked.</li>
-        <li><strong>Hear It</strong> is the only button that plays the word — in a recorded man's voice. <strong>Say It</strong> never plays the word; it opens the microphone and listens for your child to say it — and the <strong>“I said it!”</strong> button always works if a microphone is blocked or hears nothing. Trying always earns the star; there are no wrong answers.</li>
+        <li><strong>Hear It</strong> plays the word in a recorded man's voice. <strong>Say It</strong> plays the word once first, then opens the microphone and listens for your child to say it — and the <strong>“I said it!”</strong> button always works if a microphone is blocked or hears nothing. Trying always earns the star; there are no wrong answers.</li>
         <li><strong>Calm by design:</strong> no flashing, no timers, no punishment, no game over, no ads, no accounts, no subscription.</li>
         <li><strong>Progress stays on this device:</strong> stars, learned words, your child's pet, and the outfits unlock are saved only in this browser on this device. Nothing is sent anywhere or collected.</li>
         <li><strong>The only paid extra</strong> is the Buddy Outfits Pack above — $4.99 one time, for grown-ups only, in this Grown-ups area. Children never see a buy button.</li>
@@ -417,6 +419,24 @@ var W = [
 ];
 var WORDS = W.map(function(r){return {key:r[0],word:r[1],phrase:r[2],hear:r[3],grown:r[4],accept:r[5],group:r[6]};});
 var BYKEY = {}; WORDS.forEach(function(w){ BYKEY[w.key]=w; });
+/* Picture fallback: if a word's picture file can't load on the copy being
+   viewed, the child still gets a big picture — the word's emoji. */
+var EMOJI = {
+ "s01-dog":"🐶","s02-cat":"🐱","s03-cow":"🐮","s04-duck":"🦆","s05-lion":"🦁","s06-frog":"🐸","s07-bee":"🐝","s08-train":"🚂","s09-car":"🚗","s10-drum":"🥁",
+ "w01-ball":"⚽","w02-apple":"🍎","w03-banana":"🍌","w04-cup":"🥤","w05-sun":"☀️","w06-fish":"🐟","w07-bird":"🐦","w08-book":"📖","w09-balloon":"🎈","w10-cookie":"🍪",
+ "a01-jump":"🦘","a02-run":"🏃","a03-eat":"🍽️","a04-drink":"🧃","a05-sleep":"😴","a06-play":"🧸","a07-read":"📚","a08-swim":"🏊",
+ "f01-happy":"😀","f02-sad":"😢","f03-angry":"😠","f04-scared":"😨","f05-tired":"🥱","f06-excited":"🤩","f07-calm":"😌","f08-hurt":"🤕",
+ "h01-help":"🙋","h02-more":"➕","h03-alldone":"🙌","h04-please":"🥺","h05-thankyou":"🙏","h06-hello":"👋","h07-byebye":"🖐️","h08-myturn":"☝️",
+ "d01-wakeup":"🌅","d02-brushteeth":"🪥","d03-breakfast":"🥞","d04-school":"🎒","d05-bath":"🛁","d06-bedtime":"🌙"
+};
+function picErr(img){
+  var s = document.createElement("span");
+  s.className = "picfallback";
+  s.setAttribute("role","img");
+  s.setAttribute("aria-label", img.getAttribute("alt") || "");
+  s.textContent = EMOJI[img.getAttribute("data-k")] || "🖼️";
+  img.replaceWith(s);
+}
 
 /* ---------- State (this browser only) ---------- */
 var LSKEY = "sayitbuddy-public-v1";
@@ -428,15 +448,44 @@ function totalPoints(){ return learnedCount() + S.gamesWon; }
 
 var $ = function(id){ return document.getElementById(id); };
 var audio = new Audio(); audio.preload = "auto";
-function play(file, then){
-  try { audio.pause(); } catch(e){}
-  audio.src = "assets/audio/" + file;
-  audio.onended = then || null;
-  var pr = audio.play();
-  if (pr && pr.catch) pr.catch(function(){ if (then) setTimeout(then, 900); });
+/* Sound must never fail silently. If the recorded MP3 can't be played on
+   the copy being viewed (missing file, blocked, bad format), the device's
+   own voice speaks the same words instead — so there is always sound. */
+function speakFallback(text, then){
+  var done = false;
+  function finish(){ if (!done){ done = true; if (then) then(); } }
+  try {
+    if (!("speechSynthesis" in window) || !text) { finish(); return; }
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US"; u.rate = 0.95;
+    u.onend = finish; u.onerror = finish;
+    window.speechSynthesis.speak(u);
+    setTimeout(finish, 5000); /* some browsers never fire onend when blocked */
+  } catch(e){ finish(); }
 }
-function playWord(w, then){ play("word-" + w.key + ".mp3", then); }
-function playSaid(w){ play("said-" + w.key + ".mp3"); }
+var playToken = 0;
+function play(file, then, sayText){
+  var token = ++playToken;
+  var settled = false;
+  function fail(){
+    if (settled || token !== playToken) return;
+    settled = true;
+    if (sayText) speakFallback(sayText, then);
+    else if (then) setTimeout(then, 900);
+  }
+  try { audio.pause(); } catch(e){}
+  audio.onerror = function(){ fail(); };
+  audio.onended = function(){ if (token === playToken && then) then(); };
+  audio.src = "assets/audio/" + file;
+  var pr = audio.play();
+  if (pr && pr.catch) pr.catch(function(err){
+    if (err && err.name === "AbortError") return; /* a newer play took over */
+    fail();
+  });
+}
+function playWord(w, then){ play("word-" + w.key + ".mp3", then, w.hear); }
+function playSaid(w){ play("said-" + w.key + ".mp3", null, "Great job! You said " + w.word.toLowerCase() + "!"); }
 function refreshStats(){
   $("statStars").textContent = learnedCount();
   $("statWords").textContent = learnedCount();
@@ -474,8 +523,17 @@ function renderWord(){
   var list = groupWords(); if (curIdx >= list.length) curIdx = 0;
   var w = list[curIdx];
   $("wordCount").textContent = "Word " + (curIdx+1) + " of " + list.length + " • " + GROUPS.filter(function(g){return g.id===curGroup;})[0].title;
-  $("wordImg").src = "assets/words/" + w.key + ".png";
-  $("wordImg").alt = "Picture to color: " + w.word.toLowerCase();
+  var wi = $("wordImg"), wf = $("wordPicFallback");
+  wf.hidden = true; wi.style.display = "";
+  wi.onerror = function(){
+    /* The picture file didn't load — show the emoji picture instead of a blank box. */
+    wi.style.display = "none";
+    wf.textContent = EMOJI[w.key] || "🖼️";
+    wf.setAttribute("aria-label", "Picture: " + w.word.toLowerCase());
+    wf.hidden = false;
+  };
+  wi.src = "assets/words/" + w.key + ".png";
+  wi.alt = "Picture to color: " + w.word.toLowerCase();
   $("wordText").textContent = w.word;
   $("wordPhrase").textContent = "Say: " + w.phrase;
   $("wordGrown").textContent = w.grown;
@@ -511,9 +569,14 @@ $("btnHear").addEventListener("click", function(){
 });
 var recog = null;
 $("btnSay").addEventListener("click", function(){
-  /* Say It NEVER plays the word — only Hear It does that.
-     Say It opens the microphone right away and listens for the child. */
+  /* Say It plays the word first so the child hears it, then opens the
+     microphone and listens for the child to say it back. */
   var w = curWord();
+  $("wordMsg").textContent = "👂 First listen… " + w.hear;
+  $("wordMsg").className = "msg";
+  playWord(w, function(){ setTimeout(function(){ startListening(w); }, 250); });
+});
+function startListening(w){
   var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) {
     $("wordMsg").textContent = "🎤 This browser can't listen — tap the green “I Said It!” button. It always works!";
@@ -550,7 +613,7 @@ $("btnSay").addEventListener("click", function(){
     $("wordMsg").textContent = "🎤 This browser can't listen — tap the green “I Said It!” button. It always works!";
     $("wordMsg").className = "msg warn";
   }
-});
+}
 $("btnSaid").addEventListener("click", earnWord);
 $("btnNext").addEventListener("click", function(){
   var list = groupWords();
@@ -640,20 +703,26 @@ function buddySVG(){
   if (outfit === "crown") hat = '<polygon points="66,50 66,22 84,38 100,16 116,38 134,22 134,50" fill="#FFC529" stroke="#D99A06" stroke-width="3"/>';
   if (outfit === "hero") cape = '<path d="M52 92 Q100 130 148 92 L158 210 Q100 236 42 210 Z" fill="#E85A12" opacity="0.9"/>';
   if (outfit === "cool") shades = '<rect x="70" y="76" width="60" height="18" rx="9" fill="#1D2B2B"/>';
-  var s = '<svg width="200" height="250" viewBox="0 0 200 250" role="img" aria-label="Buddy the robot, building up as you learn">';
-  s += cape;
-  if (has(0)) s += '<ellipse cx="76" cy="238" rx="20" ry="8" fill="#4A5A58"/><ellipse cx="124" cy="238" rx="20" ry="8" fill="#4A5A58"/>';
-  if (has(10)) s += '<rect x="66" y="196" width="24" height="38" rx="8" fill="#0E7C7B"/><rect x="110" y="196" width="24" height="38" rx="8" fill="#0E7C7B"/>';
-  if (has(20)) s += '<rect x="56" y="118" width="88" height="84" rx="20" fill="#FF7A1F"/>';
-  if (has(50) && has(20)) s += '<polygon points="100,138 106,154 123,154 109,164 114,181 100,170 86,181 91,164 77,154 94,154" fill="#FFC529" stroke="#fff" stroke-width="2"/>';
-  if (has(30)) s += '<rect x="30" y="124" width="20" height="58" rx="10" fill="#0E7C7B"/><rect x="150" y="124" width="20" height="58" rx="10" fill="#0E7C7B"/>';
-  if (has(40)) {
-    s += '<line x1="100" y1="58" x2="100" y2="34" stroke="#4A5A58" stroke-width="5"/><circle cx="100" cy="28" r="8" fill="#FFC529"/>';
-    s += '<rect x="58" y="52" width="84" height="70" rx="24" fill="#FFD9A8" stroke="#E8A34F" stroke-width="3"/>';
-    s += '<circle cx="84" cy="84" r="7" fill="#1D2B2B"/><circle cx="116" cy="84" r="7" fill="#1D2B2B"/>';
-    s += '<path d="M82 102 Q100 114 118 102" stroke="#1D2B2B" stroke-width="4" fill="none" stroke-linecap="round"/>';
-    s += shades + hat;
+  /* Buddy is ALWAYS drawn in full — pieces not yet earned show as pale
+     "ghost" pieces and fill in with color as points are earned, so Buddy
+     is visible from the very first visit instead of an empty stage. */
+  function piece(at, shapes){
+    return has(at) ? shapes : '<g opacity="0.5">' + shapes + "</g>";
   }
+  var s = '<svg width="200" height="250" viewBox="0 0 200 250" role="img" aria-label="Buddy the robot, building up as you learn">';
+  s += piece(20, cape);
+  s += piece(0, '<ellipse cx="76" cy="238" rx="20" ry="8" fill="#4A5A58"/><ellipse cx="124" cy="238" rx="20" ry="8" fill="#4A5A58"/>');
+  s += piece(10, '<rect x="66" y="196" width="24" height="38" rx="8" fill="#0E7C7B"/><rect x="110" y="196" width="24" height="38" rx="8" fill="#0E7C7B"/>');
+  var body = '<rect x="56" y="118" width="88" height="84" rx="20" fill="#FF7A1F"/>';
+  if (has(50)) body += '<polygon points="100,138 106,154 123,154 109,164 114,181 100,170 86,181 91,164 77,154 94,154" fill="#FFC529" stroke="#fff" stroke-width="2"/>';
+  s += piece(20, body);
+  s += piece(30, '<rect x="30" y="124" width="20" height="58" rx="10" fill="#0E7C7B"/><rect x="150" y="124" width="20" height="58" rx="10" fill="#0E7C7B"/>');
+  var head = '<line x1="100" y1="58" x2="100" y2="34" stroke="#4A5A58" stroke-width="5"/><circle cx="100" cy="28" r="8" fill="#FFC529"/>';
+  head += '<rect x="58" y="52" width="84" height="70" rx="24" fill="#FFD9A8" stroke="#E8A34F" stroke-width="3"/>';
+  head += '<circle cx="84" cy="84" r="7" fill="#1D2B2B"/><circle cx="116" cy="84" r="7" fill="#1D2B2B"/>';
+  head += '<path d="M82 102 Q100 114 118 102" stroke="#1D2B2B" stroke-width="4" fill="none" stroke-linecap="round"/>';
+  head += shades + hat;
+  s += piece(40, head);
   s += "</svg>";
   return s;
 }
@@ -781,7 +850,7 @@ function gameBubbles(pa){
         b.style.visibility = "hidden"; next++; drawTarget();
         if (next >= word.length) {
           won = true;
-          play("spelled-" + word.toLowerCase() + ".mp3");
+          play("spelled-" + word.toLowerCase() + ".mp3", null, word.split("").join(" ") + " — " + word + "!");
           gameWin("You spelled " + word + "!");
         }
       } else {
@@ -853,7 +922,7 @@ function gameAnimals(pa){
   choices.forEach(function(w){
     var b = document.createElement("button");
     b.className = "choice";
-    b.innerHTML = "<img src='assets/words/" + w.key + ".png' alt='" + w.word.toLowerCase() + "' /><b>" + w.word + "</b>";
+    b.innerHTML = "<img src='assets/words/" + w.key + ".png' data-k='" + w.key + "' onerror='picErr(this)' alt='" + w.word.toLowerCase() + "' /><b>" + w.word + "</b>";
     b.addEventListener("click", function(){
       if (won) return;
       if (w.key === target.key) { won = true; playSaid(target); gameWin("Yes — that's the " + target.word.toLowerCase() + "!"); }
@@ -879,7 +948,7 @@ function gameMemory(pa){
     b.addEventListener("click", function(){
       if (lock || won || b.classList.contains("open") || b.classList.contains("done")) return;
       b.classList.add("open");
-      b.innerHTML = "<img src='assets/words/" + w.key + ".png' alt='" + w.word.toLowerCase() + "' />";
+      b.innerHTML = "<img src='assets/words/" + w.key + ".png' data-k='" + w.key + "' onerror='picErr(this)' alt='" + w.word.toLowerCase() + "' />";
       open.push({b: b, w: w});
       if (open.length === 2) {
         if (open[0].w.key === open[1].w.key) {
@@ -915,13 +984,13 @@ function gameColorHunt(pa){
     b.className = "colorcell"; b.style.background = c.hex; b.textContent = c.name;
     b.addEventListener("click", function(){
       if (won) return;
-      if (c.id === target.id) { won = true; play("found-" + c.id + ".mp3"); gameWin("You found " + c.name + "!"); }
-      else { $("huntMsg").textContent = "💪 Good try! Listen again and hunt some more."; play("findshort-" + target.id + ".mp3"); }
+      if (c.id === target.id) { won = true; play("found-" + c.id + ".mp3", null, "You found " + target.name.toLowerCase() + "!"); gameWin("You found " + c.name + "!"); }
+      else { $("huntMsg").textContent = "💪 Good try! Listen again and hunt some more."; play("findshort-" + target.id + ".mp3", null, "Find " + target.name.toLowerCase() + "!"); }
     });
     grid.appendChild(b);
   });
-  $("huntHear").addEventListener("click", function(){ play("find-" + target.id + ".mp3"); });
-  setTimeout(function(){ play("find-" + target.id + ".mp3"); }, 350);
+  $("huntHear").addEventListener("click", function(){ play("find-" + target.id + ".mp3", null, "Can you find " + target.name.toLowerCase() + "?"); });
+  setTimeout(function(){ play("find-" + target.id + ".mp3", null, "Can you find " + target.name.toLowerCase() + "?"); }, 350);
 }
 
 /* ---------- Grown-ups gate ---------- */
@@ -981,9 +1050,25 @@ function renderPayState(){
     $("payButtons").style.display = "block";
   }
 }
-$("stripeDoneBtn").addEventListener("click", function(){
-  S.outfits = true; save(); renderPayState(); renderBuddyPet();
-});
+/* Outfits pack unlock — there is NO unlock button and NO free unlock in
+   this public build. The pack turns on only when Stripe sends the buyer
+   back to this page after a completed payment, which lands here with
+   ?paid=1 in the address. That signal is read once, the pack is turned on
+   for this device, and the address bar is cleaned so the signal is not
+   left sitting in the URL or browser history. */
+(function stripeReturn(){
+  try {
+    var q = new URLSearchParams(window.location.search);
+    if (q.get("paid") === "1" && !S.outfits) {
+      S.outfits = true; save(); renderPayState(); renderBuddyPet();
+    }
+    if (q.has("paid")) {
+      q.delete("paid");
+      var qs = q.toString();
+      window.history.replaceState(null, "", window.location.pathname + (qs ? "?" + qs : "") + window.location.hash);
+    }
+  } catch(e){}
+})();
 $("resetBtn").addEventListener("click", function(){
   if (resetArm) {
     S = { learned:{}, gamesWon:0, pet:null, outfits:false, outfit:"none" };
