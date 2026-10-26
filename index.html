@@ -673,7 +673,7 @@ function play(file, then, sayText){
       start();
     } else {
       try { audio.pause(); } catch(e){}
-      audio.src = "assets/audio/" + file;
+      audio.src = (window.VINCENT_AUDIO && window.VINCENT_AUDIO[file]) || ("assets/audio/" + file);
       try { audio.load(); } catch(e){}
       start();
     }
@@ -1284,5 +1284,10 @@ renderGroups();
 renderWord();
 renderBuddyPet();
 </script>
+<script src="assets/vincent-1.js"></script>
+<script src="assets/vincent-2.js"></script>
+<script src="assets/vincent-3.js"></script>
+<script src="assets/vincent-4.js"></script>
+<script src="assets/vincent-5.js"></script>
 </body>
 </html>
