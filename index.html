@@ -279,7 +279,7 @@
       </div>
       <div class="card">
         <h2>🥚 My Pet</h2>
-        <p class="sub">Pick a pet egg. Every word you learn is food — your pet hatches and grows as you learn!</p>
+        <p class="sub">Pick a pet egg — now 20 pets! Monkey, hyena, wildlife and birds too. Every word you learn is food — your pet hatches and grows as you learn!</p>
         <div class="pet-choices" id="petChoices"></div>
         <div class="pet-big" id="petBig" aria-hidden="true">🥚</div>
         <div class="pet-stage-name" id="petStage"></div>
@@ -886,7 +886,19 @@ var PETS = [
   {id:"frog", emoji:"🐸", baby:"🐸", name:"Frog"},
   {id:"bunny", emoji:"🐰", baby:"🐰", name:"Bunny"},
   {id:"bear", emoji:"🐻", baby:"🐻", name:"Bear"},
-  {id:"panda", emoji:"🐼", baby:"🐼", name:"Panda"}
+  {id:"panda", emoji:"🐼", baby:"🐼", name:"Panda"},
+  {id:"monkey", emoji:"🐵", baby:"🐵", name:"Monkey", treat:"🍌"},
+  {id:"hyena", emoji:"🐺", baby:"🐺", name:"Hyena", treat:"🦴"},
+  {id:"elephant", emoji:"🐘", baby:"🐘", name:"Elephant"},
+  {id:"tiger", emoji:"🐯", baby:"🐯", name:"Tiger"},
+  {id:"giraffe", emoji:"🦒", baby:"🦒", name:"Giraffe"},
+  {id:"zebra", emoji:"🦓", baby:"🦓", name:"Zebra"},
+  {id:"owl", emoji:"🦉", baby:"🦉", name:"Owl"},
+  {id:"parrot", emoji:"🦜", baby:"🦜", name:"Parrot"},
+  {id:"penguin", emoji:"🐧", baby:"🐧", name:"Penguin"},
+  {id:"eagle", emoji:"🦅", baby:"🦅", name:"Eagle"},
+  {id:"koala", emoji:"🐨", baby:"🐨", name:"Koala"},
+  {id:"turtle", emoji:"🐢", baby:"🐢", name:"Turtle"}
 ];
 var PIECES = [
   {n:"Feet & base", at:0}, {n:"Legs", at:10}, {n:"Body", at:20},
@@ -1007,7 +1019,7 @@ function feedPet(){
   var sc = $("feedScene"); if (!sc) return;
   var pet = (typeof PETS !== "undefined") ? PETS.filter(function(p){ return p.id === S.pet; })[0] : null;
   if (!pet) { sc.textContent = "🥚 Pick a pet egg first, then come back and feed it!"; return; }
-  sc.innerHTML = '<div style="font-size:44px">' + avatarSVG().replace('width="180" height="240"', 'width="90" height="120"') + ' 🍎 ' + pet.emoji + '</div><div>Yum! ' + pet.name + ' loves being fed by you! 🍎❤️</div>';
+  sc.innerHTML = '<div style="font-size:44px">' + avatarSVG().replace('width="180" height="240"', 'width="90" height="120"') + ' ' + (pet.treat || '🍎') + ' ' + pet.emoji + '</div><div>Yum! ' + pet.name + ' loves being fed by you! ' + (pet.treat || '🍎') + '❤️</div>';
 }
 
 function renderBuddyPet(){
