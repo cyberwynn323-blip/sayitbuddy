@@ -219,7 +219,7 @@
   <div class="wrap tabs-in" role="tablist" aria-label="Say It Buddy sections">
     <button class="tab" role="tab" id="tab-words" aria-selected="true" data-tab="words">🗣️ Words</button>
     <button class="tab" role="tab" id="tab-buddy" aria-selected="false" data-tab="buddy">🤖 Buddy &amp; Pet</button>
-    <button class="tab" role="tab" id="tab-games" aria-selected="false" data-tab="games">🎮 Games</button>
+    <button class="tab" role="tab" id="tab-games" aria-selected="false" data-tab="games">🎮 Side Quests</button>
     <button class="tab grown" role="tab" id="tab-grown" aria-selected="false" data-tab="grown">Grown-ups</button>
   </div>
 </div>
@@ -272,7 +272,7 @@
     <div class="duo">
       <div class="card">
         <h2>🤖 Buddy the Robot</h2>
-        <p class="sub">Buddy is here from the start! His pale pieces fill in with color as you learn — every 10 stars and games builds a new piece.</p>
+        <p class="sub">Buddy is here from the start! His pale pieces fill in with color as you learn — every star from words AND side quests builds a new piece.</p>
         <div class="buddy-stage" id="buddyStage"></div>
         <ul class="piece-list" id="pieceList"></ul>
         <div id="outfitArea"></div>
@@ -284,12 +284,22 @@
         <div class="pet-big" id="petBig" aria-hidden="true">🥚</div>
         <div class="pet-stage-name" id="petStage"></div>
         <p class="sub" style="text-align:center" id="petFood"></p>
+        <button class="outfit-btn" id="feedPetBtn" style="margin-top:10px">🍎 Feed my pet with my avatar</button>
+        <div id="feedScene" style="text-align:center;margin-top:10px;font-weight:800"></div>
+      </div>
+      <div class="card">
+        <h2>🧒 My Avatar</h2>
+        <p class="sub">Make your avatar look just how you like! Pick boy or girl, then mix and match — shirt, pants, shoes, hat AND glasses, all at the same time.</p>
+        <div id="avatarStage" style="text-align:center"></div>
+        <div id="avatarControls"></div>
       </div>
     </div>
   </section>
 
   <!-- ============ GAMES ============ -->
   <section class="panel" id="panel-games" role="tabpanel" aria-labelledby="tab-games">
+    <h2>🎮 Side Quests — the big hit!</h2>
+    <p class="sub">Side quests are a bigger part now! Every win gives ⭐ 1 star AND 🍎 a pet treat. Stars from words AND side quests both build Buddy.</p>
     <div class="gamegrid" role="group" aria-label="Choose a game">
       <button class="gamebtn" data-game="bubbles" aria-pressed="false"><span class="ic">🫧</span><b>Bubble-Pop Letters</b><span>Pop the letters to spell the word</span></button>
       <button class="gamebtn" data-game="drop" aria-pressed="false"><span class="ic">🧱</span><b>Word Drop</b><span>Tap the falling word block</span></button>
@@ -440,8 +450,8 @@ function picErr(img){
 
 /* ---------- State (this browser only) ---------- */
 var LSKEY = "sayitbuddy-public-v1";
-var S = { learned:{}, gamesWon:0, pet:null, outfits:false, outfit:"none" };
-try { var raw = localStorage.getItem(LSKEY); if (raw) { var p = JSON.parse(raw); if (p && typeof p==="object") S = Object.assign(S, p); } } catch(e){}
+var S = { learned:{}, gamesWon:0, pet:null, outfits:false, outfit:"none", avatar:{gender:"boy", shirt:"#FF5C8A", pants:"#2B6CB0", shoes:"#FFC529", hat:"none", glasses:"none"} };
+try { var raw = localStorage.getItem(LSKEY); if (raw) { var p = JSON.parse(raw); if (p && typeof p==="object") S = Object.assign(S, p); if (!S.avatar) S.avatar = {gender:"boy", shirt:"#FF5C8A", pants:"#2B6CB0", shoes:"#FFC529", hat:"none", glasses:"none"}; } } catch(e){}
 function save(){ try { localStorage.setItem(LSKEY, JSON.stringify(S)); } catch(e){} }
 function learnedCount(){ return Object.keys(S.learned).filter(function(k){return S.learned[k];}).length; }
 function totalPoints(){ return learnedCount() + S.gamesWon; }
@@ -682,7 +692,7 @@ function play(file, then, sayText){
 function playWord(w, then){ play("word-" + w.key + ".mp3", then, w.hear); }
 function playSaid(w){ play("said-" + w.key + ".mp3", null, "Great job! You said " + w.word.toLowerCase() + "!"); }
 function refreshStats(){
-  $("statStars").textContent = learnedCount();
+  $("statStars").textContent = totalPoints();
   $("statWords").textContent = learnedCount();
   $("statGames").textContent = S.gamesWon;
 }
@@ -694,7 +704,7 @@ document.querySelectorAll(".tab").forEach(function(t){
     t.setAttribute("aria-selected","true");
     document.querySelectorAll(".panel").forEach(function(p){ p.classList.remove("on"); });
     $("panel-" + t.getAttribute("data-tab")).classList.add("on");
-    if (t.getAttribute("data-tab") === "buddy") renderBuddyPet();
+    if (t.getAttribute("data-tab") === "buddy") { renderBuddyPet(); renderAvatar(); }
   });
 });
 
@@ -921,6 +931,66 @@ function buddySVG(){
   s += "</svg>";
   return s;
 }
+
+/* ---------- My Avatar (mix and match, all at once) ---------- */
+function avatarSVG(){
+  var a = S.avatar || {};
+  var skin = "#FFD9A8";
+  var hair = a.gender === "girl" ? '<ellipse cx="100" cy="58" rx="42" ry="30" fill="#6B4226"/><circle cx="58" cy="86" r="14" fill="#6B4226"/><circle cx="142" cy="86" r="14" fill="#6B4226"/>' : '<path d="M62 62 Q100 18 138 62 L132 48 Q100 34 68 48 Z" fill="#3B2F2F"/>';
+  var hat = "";
+  if (a.hat === "cap") hat = '<path d="M62 52 Q100 16 138 52 L138 44 Q100 10 62 44 Z" fill="#E53E3E"/><rect x="132" y="44" width="26" height="8" rx="4" fill="#E53E3E"/>';
+  if (a.hat === "crown") hat = '<polygon points="68,52 68,24 86,40 100,18 114,40 132,24 132,52" fill="#FFC529" stroke="#D99A06" stroke-width="3"/>';
+  if (a.hat === "party") hat = '<polygon points="100,4 78,52 122,52" fill="#FF5C8A"/><circle cx="100" cy="4" r="8" fill="#FFC529"/>';
+  var glasses = "";
+  if (a.glasses === "cool") glasses = '<rect x="72" y="82" width="24" height="16" rx="8" fill="#1D2B2B"/><rect x="104" y="82" width="24" height="16" rx="8" fill="#1D2B2B"/><rect x="96" y="88" width="8" height="4" fill="#1D2B2B"/>';
+  if (a.glasses === "star") glasses = '<polygon points="84,78 88,88 98,88 90,94 93,104 84,98 75,104 78,94 70,88 80,88" fill="#FFC529" stroke="#D99A06" stroke-width="2"/><polygon points="116,78 120,88 130,88 122,94 125,104 116,98 107,104 110,94 102,88 112,88" fill="#FFC529" stroke="#D99A06" stroke-width="2"/>';
+  if (a.glasses === "round") glasses = '<circle cx="84" cy="90" r="12" fill="none" stroke="#1D2B2B" stroke-width="3"/><circle cx="116" cy="90" r="12" fill="none" stroke="#1D2B2B" stroke-width="3"/><rect x="96" y="88" width="8" height="4" fill="#1D2B2B"/>';
+  var s = '<svg width="180" height="240" viewBox="0 0 200 260" role="img" aria-label="My avatar">';
+  s += '<ellipse cx="72" cy="246" rx="22" ry="8" fill="' + (a.shoes||"#FFC529") + '"/><ellipse cx="128" cy="246" rx="22" ry="8" fill="' + (a.shoes||"#FFC529") + '"/>';
+  s += '<rect x="72" y="190" width="22" height="52" fill="' + (a.pants||"#2B6CB0") + '"/><rect x="106" y="190" width="22" height="52" fill="' + (a.pants||"#2B6CB0") + '"/>';
+  s += '<rect x="60" y="120" width="80" height="76" rx="18" fill="' + (a.shirt||"#FF5C8A") + '"/>';
+  s += '<rect x="36" y="126" width="20" height="54" rx="10" fill="' + (a.shirt||"#FF5C8A") + '"/><rect x="144" y="126" width="20" height="54" rx="10" fill="' + (a.shirt||"#FF5C8A") + '"/>';
+  s += '<circle cx="100" cy="78" r="42" fill="' + skin + '"/>' + hair;
+  s += '<circle cx="84" cy="80" r="5" fill="#1D2B2B"/><circle cx="116" cy="80" r="5" fill="#1D2B2B"/>';
+  s += '<circle cx="70" cy="96" r="7" fill="#FF9EBB" opacity="0.8"/><circle cx="130" cy="96" r="7" fill="#FF9EBB" opacity="0.8"/>';
+  s += '<path d="M86 104 Q100 114 114 104" stroke="#1D2B2B" stroke-width="4" fill="none" stroke-linecap="round"/>';
+  s += glasses + hat + '</svg>';
+  return s;
+}
+function renderAvatar(){
+  var st = $("avatarStage"); if (!st) return;
+  st.innerHTML = avatarSVG();
+  var c = $("avatarControls"); if (!c) return;
+  var a = S.avatar;
+  function row(label, opts, field){
+    var d = document.createElement("div"); d.style.marginTop = "10px";
+    var l = document.createElement("div"); l.style.fontWeight = "900"; l.textContent = label; d.appendChild(l);
+    var r = document.createElement("div"); r.className = "outfit-row";
+    opts.forEach(function(o){
+      var b = document.createElement("button"); b.className = "outfit-btn"; b.textContent = o.label;
+      if (o.color) b.style.background = o.color;
+      b.setAttribute("aria-pressed", a[field] === o.id ? "true" : "false");
+      b.addEventListener("click", function(){ a[field] = o.id; save(); renderAvatar(); });
+      r.appendChild(b);
+    });
+    d.appendChild(r); c.appendChild(d);
+  }
+  c.innerHTML = "";
+  row("Boy or girl?", [{id:"boy", label:"👦 Boy"}, {id:"girl", label:"👧 Girl"}], "gender");
+  row("Shirt color", [{id:"#FF5C8A", label:"💗 Pink", color:"#FF5C8A"}, {id:"#2B6CB0", label:"💙 Blue", color:"#2B6CB0"}, {id:"#38A169", label:"💚 Green", color:"#38A169"}, {id:"#FFC529", label:"💛 Yellow", color:"#FFC529"}, {id:"#805AD5", label:"💜 Purple", color:"#805AD5"}], "shirt");
+  row("Pants color", [{id:"#2B6CB0", label:"💙 Blue", color:"#2B6CB0"}, {id:"#1D2B2B", label:"⬛ Black", color:"#1D2B2B"}, {id:"#E53E3E", label:"❤️ Red", color:"#E53E3E"}, {id:"#38A169", label:"💚 Green", color:"#38A169"}, {id:"#805AD5", label:"💜 Purple", color:"#805AD5"}], "pants");
+  row("Shoes color", [{id:"#FFC529", label:"💛 Yellow", color:"#FFC529"}, {id:"#E53E3E", label:"❤️ Red", color:"#E53E3E"}, {id:"#2B6CB0", label:"💙 Blue", color:"#2B6CB0"}, {id:"#1D2B2B", label:"⬛ Black", color:"#1D2B2B"}, {id:"#FFFFFF", label:"🤍 White", color:"#FFFFFF"}], "shoes");
+  row("Hat", [{id:"none", label:"No hat"}, {id:"cap", label:"🧢 Cap"}, {id:"crown", label:"👑 Crown"}, {id:"party", label:"🎉 Party hat"}], "hat");
+  row("Glasses", [{id:"none", label:"No glasses"}, {id:"cool", label:"🕶️ Cool shades"}, {id:"star", label:"⭐ Star glasses"}, {id:"round", label:"👓 Round glasses"}], "glasses");
+  var note = document.createElement("p"); note.className = "sub"; note.textContent = "Mix and match! Your shirt, pants, shoes, hat AND glasses stay on together."; c.appendChild(note);
+}
+function feedPet(){
+  var sc = $("feedScene"); if (!sc) return;
+  var pet = (typeof PETS !== "undefined") ? PETS.filter(function(p){ return p.id === S.pet; })[0] : null;
+  if (!pet) { sc.textContent = "🥚 Pick a pet egg first, then come back and feed it!"; return; }
+  sc.innerHTML = '<div style="font-size:44px">' + avatarSVG().replace('width="180" height="240"', 'width="90" height="120"') + ' 🍎 ' + pet.emoji + '</div><div>Yum! ' + pet.name + ' loves being fed by you! 🍎❤️</div>';
+}
+
 function renderBuddyPet(){
   $("buddyStage").innerHTML = buddySVG();
   var pts = totalPoints();
@@ -988,7 +1058,7 @@ function gameWin(msg){
   var pa = $("playArea");
   var old = pa.querySelector(".winbanner"); if (old) old.remove();
   var d = document.createElement("div"); d.className = "winbanner on";
-  d.innerHTML = "🌟 " + msg + " Your pet gets a treat! 🍎";
+  d.innerHTML = "🌟 " + msg + " ⭐ +1 star! Your pet gets a treat too! 🍎";
   var b = document.createElement("button"); b.className = "again-btn"; b.textContent = "Play again 🔁";
   b.addEventListener("click", function(){ startGame(currentGame); });
   d.appendChild(document.createElement("br")); d.appendChild(b);
@@ -1266,7 +1336,7 @@ function renderPayState(){
 })();
 $("resetBtn").addEventListener("click", function(){
   if (resetArm) {
-    S = { learned:{}, gamesWon:0, pet:null, outfits:false, outfit:"none" };
+    S = { learned:{}, gamesWon:0, pet:null, outfits:false, outfit:"none", avatar:{gender:"boy", shirt:"#FF5C8A", pants:"#2B6CB0", shoes:"#FFC529", hat:"none", glasses:"none"} }; renderAvatar();
     save(); refreshStats(); renderGroups(); renderWord(); renderBuddyPet(); renderPayState();
     $("resetBtn").textContent = "All cleared ✓ Tap a tab to start again";
     resetArm = false;
@@ -1289,5 +1359,5 @@ renderBuddyPet();
 <script src="assets/vincent-3.js"></script>
 <script src="assets/vincent-4.js"></script>
 <script src="assets/vincent-5.js"></script>
-</body>
+<script>document.addEventListener("DOMContentLoaded", function(){ try{ renderAvatar(); var fb=$("feedPetBtn"); if(fb) fb.addEventListener("click", feedPet); }catch(e){} });</script></body>
 </html>
