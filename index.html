@@ -936,24 +936,28 @@ function buddySVG(){
 function avatarSVG(){
   var a = S.avatar || {};
   var skin = "#FFD9A8";
-  var hair = a.gender === "girl" ? '<ellipse cx="100" cy="58" rx="42" ry="30" fill="#6B4226"/><circle cx="58" cy="86" r="14" fill="#6B4226"/><circle cx="142" cy="86" r="14" fill="#6B4226"/>' : '<path d="M62 62 Q100 18 138 62 L132 48 Q100 34 68 48 Z" fill="#3B2F2F"/>';
+  var shirt = a.shirt || "#FF5C8A", pants = a.pants || "#2B6CB0", shoes = a.shoes || "#FFC529";
+  var hair = a.gender === "girl" ? '<ellipse cx="100" cy="58" rx="42" ry="30" fill="#6B4226"/><circle cx="58" cy="86" r="14" fill="#6B4226"/><circle cx="142" cy="86" r="14" fill="#6B4226"/>' : '<path d="M64 64 L72 34 L82 52 L92 30 L102 50 L112 32 L122 52 L130 36 L138 64 Q100 44 64 64 Z" fill="#1D2B2B"/>';
   var hat = "";
   if (a.hat === "cap") hat = '<path d="M62 52 Q100 16 138 52 L138 44 Q100 10 62 44 Z" fill="#E53E3E"/><rect x="132" y="44" width="26" height="8" rx="4" fill="#E53E3E"/>';
   if (a.hat === "crown") hat = '<polygon points="68,52 68,24 86,40 100,18 114,40 132,24 132,52" fill="#FFC529" stroke="#D99A06" stroke-width="3"/>';
   if (a.hat === "party") hat = '<polygon points="100,4 78,52 122,52" fill="#FF5C8A"/><circle cx="100" cy="4" r="8" fill="#FFC529"/>';
   var glasses = "";
-  if (a.glasses === "cool") glasses = '<rect x="72" y="82" width="24" height="16" rx="8" fill="#1D2B2B"/><rect x="104" y="82" width="24" height="16" rx="8" fill="#1D2B2B"/><rect x="96" y="88" width="8" height="4" fill="#1D2B2B"/>';
+  if (a.glasses === "cool") glasses = '<rect x="70" y="82" width="26" height="18" rx="8" fill="#1D2B2B"/><rect x="104" y="82" width="26" height="18" rx="8" fill="#1D2B2B"/><rect x="96" y="88" width="8" height="4" fill="#1D2B2B"/>';
   if (a.glasses === "star") glasses = '<polygon points="84,78 88,88 98,88 90,94 93,104 84,98 75,104 78,94 70,88 80,88" fill="#FFC529" stroke="#D99A06" stroke-width="2"/><polygon points="116,78 120,88 130,88 122,94 125,104 116,98 107,104 110,94 102,88 112,88" fill="#FFC529" stroke="#D99A06" stroke-width="2"/>';
   if (a.glasses === "round") glasses = '<circle cx="84" cy="90" r="12" fill="none" stroke="#1D2B2B" stroke-width="3"/><circle cx="116" cy="90" r="12" fill="none" stroke="#1D2B2B" stroke-width="3"/><rect x="96" y="88" width="8" height="4" fill="#1D2B2B"/>';
   var s = '<svg width="180" height="240" viewBox="0 0 200 260" role="img" aria-label="My avatar">';
-  s += '<ellipse cx="72" cy="246" rx="22" ry="8" fill="' + (a.shoes||"#FFC529") + '"/><ellipse cx="128" cy="246" rx="22" ry="8" fill="' + (a.shoes||"#FFC529") + '"/>';
-  s += '<rect x="72" y="190" width="22" height="52" fill="' + (a.pants||"#2B6CB0") + '"/><rect x="106" y="190" width="22" height="52" fill="' + (a.pants||"#2B6CB0") + '"/>';
-  s += '<rect x="60" y="120" width="80" height="76" rx="18" fill="' + (a.shirt||"#FF5C8A") + '"/>';
-  s += '<rect x="36" y="126" width="20" height="54" rx="10" fill="' + (a.shirt||"#FF5C8A") + '"/><rect x="144" y="126" width="20" height="54" rx="10" fill="' + (a.shirt||"#FF5C8A") + '"/>';
+  s += '<ellipse cx="72" cy="250" rx="24" ry="7" fill="' + shoes + '"/><rect x="52" y="242" width="40" height="8" rx="4" fill="#FFFFFF"/><ellipse cx="128" cy="250" rx="24" ry="7" fill="' + shoes + '"/><rect x="108" y="242" width="40" height="8" rx="4" fill="#FFFFFF"/>';
+  s += '<rect x="70" y="190" width="24" height="54" fill="' + pants + '"/><rect x="106" y="190" width="24" height="54" fill="' + pants + '"/>';
+  s += '<path d="M58 118 Q100 92 142 118 L142 132 Q100 110 58 132 Z" fill="' + shirt + '"/>';
+  s += '<rect x="58" y="118" width="84" height="76" rx="16" fill="' + shirt + '"/>';
+  s += '<rect x="34" y="124" width="22" height="58" rx="11" fill="' + shirt + '"/><rect x="144" y="124" width="22" height="58" rx="11" fill="' + shirt + '"/>';
+  s += '<path d="M78 156 L122 156 L114 182 L86 182 Z" fill="#000000" opacity="0.12"/>';
+  s += '<line x1="90" y1="128" x2="88" y2="162" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/><line x1="110" y1="128" x2="112" y2="162" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/><circle cx="88" cy="166" r="3" fill="#FFFFFF"/><circle cx="112" cy="166" r="3" fill="#FFFFFF"/>';
   s += '<circle cx="100" cy="78" r="42" fill="' + skin + '"/>' + hair;
   s += '<circle cx="84" cy="80" r="5" fill="#1D2B2B"/><circle cx="116" cy="80" r="5" fill="#1D2B2B"/>';
   s += '<circle cx="70" cy="96" r="7" fill="#FF9EBB" opacity="0.8"/><circle cx="130" cy="96" r="7" fill="#FF9EBB" opacity="0.8"/>';
-  s += '<path d="M86 104 Q100 114 114 104" stroke="#1D2B2B" stroke-width="4" fill="none" stroke-linecap="round"/>';
+  s += '<path d="M88 106 Q100 112 112 106" stroke="#1D2B2B" stroke-width="4" fill="none" stroke-linecap="round"/>';
   s += glasses + hat + '</svg>';
   return s;
 }
