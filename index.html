@@ -451,7 +451,7 @@ function picErr(img){
 /* ---------- State (this browser only) ---------- */
 var LSKEY = "sayitbuddy-public-v1";
 var S = { learned:{}, gamesWon:0, pet:null, outfits:false, outfit:"none", avatar:{gender:"boy", shirt:"#FF5C8A", pants:"#2B6CB0", shoes:"#FFC529", hat:"none", glasses:"none"} };
-try { var raw = localStorage.getItem(LSKEY); if (raw) { var p = JSON.parse(raw); if (p && typeof p==="object") S = Object.assign(S, p); if (!S.avatar) S.avatar = {gender:"boy", shirt:"#FF5C8A", pants:"#2B6CB0", shoes:"#FFC529", hat:"none", glasses:"none"}; } } catch(e){}
+try { var raw = localStorage.getItem(LSKEY); if (raw) { var p = JSON.parse(raw); if (p && typeof p==="object") S = Object.assign(S, p); if (!S.avatar) S.avatar = {gender:"boy", shirt:"#FF5C8A", pants:"#2B6CB0", shoes:"#FFC529", hat:"none", glasses:"none"}; if (!S.gear) { S.gear = {hat:"none", glasses:"none", cape:"none", extra:"none"}; if (S.outfit === "party") S.gear.hat = "party"; if (S.outfit === "crown") S.gear.hat = "crown"; if (S.outfit === "hero") S.gear.cape = "hero"; if (S.outfit === "cool") S.gear.glasses = "cool"; } } } catch(e){}
 function save(){ try { localStorage.setItem(LSKEY, JSON.stringify(S)); } catch(e){} }
 function learnedCount(){ return Object.keys(S.learned).filter(function(k){return S.learned[k];}).length; }
 function totalPoints(){ return learnedCount() + S.gamesWon; }
@@ -892,22 +892,36 @@ var PIECES = [
   {n:"Feet & base", at:0}, {n:"Legs", at:10}, {n:"Body", at:20},
   {n:"Arms", at:30}, {n:"Head & eyes", at:40}, {n:"Star badge — Buddy complete!", at:50}
 ];
-var OUTFITS = [
-  {id:"none", label:"Just Buddy"},
-  {id:"party", label:"🎉 Party Hat"},
-  {id:"crown", label:"👑 Crown"},
-  {id:"hero", label:"🦸 Hero Cape"},
-  {id:"cool", label:"🕶️ Cool Shades"}
+var GEAR = [
+  {field:"hat", label:"🎩 Hat", opts:[{id:"none", label:"No hat"}, {id:"party", label:"🎉 Party Hat"}, {id:"crown", label:"👑 Crown"}, {id:"wizard", label:"🧙 Wizard Hat"}, {id:"pirate", label:"🏴‍☠️ Pirate Hat"}, {id:"cowboy", label:"🤠 Cowboy Hat"}, {id:"helmet", label:"🪖 Space Helmet"}, {id:"beanie", label:"🧢 Beanie"}]},
+  {field:"glasses", label:"👓 Glasses", opts:[{id:"none", label:"No glasses"}, {id:"cool", label:"🕶️ Cool Shades"}, {id:"star", label:"⭐ Star Glasses"}, {id:"heart", label:"💗 Heart Glasses"}, {id:"round", label:"👓 Round Glasses"}]},
+  {field:"cape", label:"🦸 Cape", opts:[{id:"none", label:"No cape"}, {id:"hero", label:"🦸 Red Hero Cape"}, {id:"blue", label:"💙 Blue Cape"}, {id:"purple", label:"💜 Purple Cape"}, {id:"green", label:"💚 Green Cape"}]},
+  {field:"extra", label:"✨ Extras", opts:[{id:"none", label:"No extra"}, {id:"bowtie", label:"🎀 Bow Tie"}, {id:"headphones", label:"🎧 Headphones"}, {id:"belt", label:"🥇 Champion Belt"}, {id:"wand", label:"🪄 Magic Wand"}]}
 ];
 function buddySVG(){
   var pts = totalPoints();
   var has = function(at){ return pts >= at; };
-  var outfit = S.outfits ? S.outfit : "none";
-  var hat = "", cape = "", shades = "";
-  if (outfit === "party") hat = '<polygon points="100,6 78,52 122,52" fill="#FF5C8A"/><circle cx="100" cy="6" r="9" fill="#FFC529"/>';
-  if (outfit === "crown") hat = '<polygon points="66,50 66,22 84,38 100,16 116,38 134,22 134,50" fill="#FFC529" stroke="#D99A06" stroke-width="3"/>';
-  if (outfit === "hero") cape = '<path d="M52 92 Q100 130 148 92 L158 210 Q100 236 42 210 Z" fill="#E85A12" opacity="0.9"/>';
-  if (outfit === "cool") shades = '<rect x="70" y="76" width="60" height="18" rx="9" fill="#1D2B2B"/>';
+  var g = (S.outfits && S.gear) ? S.gear : {hat:"none", glasses:"none", cape:"none", extra:"none"};
+  var hat = "", cape = "", shades = "", extra = "";
+  if (g.hat === "party") hat = '<polygon points="100,6 78,52 122,52" fill="#FF5C8A"/><circle cx="100" cy="6" r="9" fill="#FFC529"/>';
+  if (g.hat === "crown") hat = '<polygon points="66,50 66,22 84,38 100,16 116,38 134,22 134,50" fill="#FFC529" stroke="#D99A06" stroke-width="3"/>';
+  if (g.hat === "wizard") hat = '<polygon points="100,2 78,52 122,52" fill="#805AD5"/><ellipse cx="100" cy="52" rx="34" ry="7" fill="#6B46C1"/><polygon points="100,14 106,26 94,26" fill="#FFC529"/>';
+  if (g.hat === "pirate") hat = '<path d="M58 52 Q100 20 142 52 L142 44 Q100 14 58 44 Z" fill="#1D2B2B"/><rect x="58" y="44" width="84" height="8" fill="#E53E3E"/><circle cx="100" cy="32" r="7" fill="#FFFFFF"/><circle cx="97" cy="31" r="2" fill="#1D2B2B"/><circle cx="103" cy="31" r="2" fill="#1D2B2B"/>';
+  if (g.hat === "cowboy") hat = '<ellipse cx="100" cy="50" rx="44" ry="9" fill="#8B5A2B"/><path d="M74 50 L76 24 Q100 12 124 24 L126 50 Z" fill="#A67C52"/><rect x="74" y="38" width="52" height="6" fill="#E53E3E"/>';
+  if (g.hat === "helmet") hat = '<path d="M58 52 Q58 8 100 8 Q142 8 142 52 L142 46 Q142 16 100 16 Q58 16 58 46 Z" fill="#C0C0C0" opacity="0.9"/><circle cx="142" cy="46" r="7" fill="#4A5A58"/>';
+  if (g.hat === "beanie") hat = '<path d="M62 52 Q62 22 100 22 Q138 22 138 52 Z" fill="#E53E3E"/><circle cx="100" cy="20" r="8" fill="#FFFFFF"/>';
+  if (g.cape === "hero") cape = '<path d="M52 92 Q100 130 148 92 L158 210 Q100 236 42 210 Z" fill="#E85A12" opacity="0.9"/>';
+  if (g.cape === "blue") cape = '<path d="M52 92 Q100 130 148 92 L158 210 Q100 236 42 210 Z" fill="#2B6CB0" opacity="0.9"/>';
+  if (g.cape === "purple") cape = '<path d="M52 92 Q100 130 148 92 L158 210 Q100 236 42 210 Z" fill="#805AD5" opacity="0.9"/>';
+  if (g.cape === "green") cape = '<path d="M52 92 Q100 130 148 92 L158 210 Q100 236 42 210 Z" fill="#38A169" opacity="0.9"/>';
+  if (g.glasses === "cool") shades = '<rect x="70" y="76" width="60" height="18" rx="9" fill="#1D2B2B"/>';
+  if (g.glasses === "star") shades = '<polygon points="84,74 88,84 98,84 90,90 93,100 84,94 75,100 78,90 70,84 80,84" fill="#FFC529" stroke="#D99A06" stroke-width="2"/><polygon points="116,74 120,84 130,84 122,90 125,100 116,94 107,100 110,90 102,84 112,84" fill="#FFC529" stroke="#D99A06" stroke-width="2"/>';
+  if (g.glasses === "heart") shades = '<path d="M84 78 Q76 88 84 96 Q92 88 84 78 Z" fill="#FF5C8A"/><path d="M116 78 Q108 88 116 96 Q124 88 116 78 Z" fill="#FF5C8A"/>';
+  if (g.glasses === "round") shades = '<circle cx="84" cy="85" r="12" fill="none" stroke="#1D2B2B" stroke-width="3"/><circle cx="116" cy="85" r="12" fill="none" stroke="#1D2B2B" stroke-width="3"/>';
+  if (g.extra === "bowtie") extra = '<polygon points="88,126 100,134 88,142" fill="#E53E3E"/><polygon points="112,126 100,134 112,142" fill="#E53E3E"/><circle cx="100" cy="134" r="5" fill="#C53030"/>';
+  if (g.extra === "headphones") extra = '<path d="M58 84 Q58 38 100 38 Q142 38 142 84" fill="none" stroke="#1D2B2B" stroke-width="6"/><rect x="52" y="76" width="14" height="26" rx="7" fill="#1D2B2B"/><rect x="134" y="76" width="14" height="26" rx="7" fill="#1D2B2B"/>';
+  if (g.extra === "belt") extra = '<rect x="56" y="176" width="88" height="12" fill="#FFC529"/><rect x="92" y="172" width="16" height="20" rx="3" fill="#D99A06" stroke="#FFF" stroke-width="2"/>';
+  if (g.extra === "wand") extra = '<line x1="158" y1="124" x2="182" y2="92" stroke="#8B5A2B" stroke-width="4" stroke-linecap="round"/><polygon points="182,92 188,80 194,92 188,104" fill="#FFC529"/>';
   /* Buddy is ALWAYS drawn in full — pieces not yet earned show as pale
      "ghost" pieces and fill in with color as points are earned, so Buddy
      is visible from the very first visit instead of an empty stage. */
@@ -928,6 +942,7 @@ function buddySVG(){
   head += '<path d="M82 102 Q100 114 118 102" stroke="#1D2B2B" stroke-width="4" fill="none" stroke-linecap="round"/>';
   head += shades + hat;
   s += piece(40, head);
+  s += piece(20, extra);
   s += "</svg>";
   return s;
 }
@@ -1009,20 +1024,23 @@ function renderBuddyPet(){
   var oa = $("outfitArea"); oa.innerHTML = "";
   if (S.outfits) {
     var lbl = document.createElement("p"); lbl.className = "sub"; lbl.style.marginTop = "14px";
-    lbl.innerHTML = "<strong style='color:var(--ink)'>Outfits Pack unlocked 🎉</strong> — pick Buddy's outfit:";
+    lbl.innerHTML = "<strong style='color:var(--ink)'>Outfits Pack unlocked 🎉 — 19 accessories!</strong> — mix and match a hat, glasses, cape AND an extra, all at the same time:";
     oa.appendChild(lbl);
-    var row = document.createElement("div"); row.className = "outfit-row";
-    OUTFITS.forEach(function(o){
-      var b = document.createElement("button");
-      b.className = "outfit-btn"; b.textContent = o.label;
-      b.setAttribute("aria-pressed", S.outfit === o.id ? "true":"false");
-      b.addEventListener("click", function(){ S.outfit = o.id; save(); renderBuddyPet(); });
-      row.appendChild(b);
+    GEAR.forEach(function(grp){
+      var gl = document.createElement("div"); gl.style.fontWeight = "900"; gl.style.marginTop = "10px"; gl.textContent = grp.label; oa.appendChild(gl);
+      var row = document.createElement("div"); row.className = "outfit-row";
+      grp.opts.forEach(function(o){
+        var b = document.createElement("button");
+        b.className = "outfit-btn"; b.textContent = o.label;
+        b.setAttribute("aria-pressed", S.gear[grp.field] === o.id ? "true":"false");
+        b.addEventListener("click", function(){ S.gear[grp.field] = o.id; save(); renderBuddyPet(); });
+        row.appendChild(b);
+      });
+      oa.appendChild(row);
     });
-    oa.appendChild(row);
   } else {
     var note = document.createElement("div"); note.className = "locknote";
-    note.textContent = "🔒 Special outfits (party hat, crown, hero cape, cool shades) are in the Buddy Outfits Pack — grown-ups can get it in the Grown-ups tab for $4.99, one time. Buddy himself is always free.";
+    note.textContent = "🔒 19 accessories are in the Buddy Outfits Pack — 7 hats, 4 glasses, 4 capes and 4 extras, mix and match them all at once! Grown-ups can get it in the Grown-ups tab for $4.99, one time. Buddy himself is always free.";
     oa.appendChild(note);
   }
   /* pet */
