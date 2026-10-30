@@ -451,7 +451,7 @@ function picErr(img){
 /* ---------- State (this browser only) ---------- */
 var LSKEY = "sayitbuddy-public-v1";
 var S = { learned:{}, gamesWon:0, pet:null, outfits:false, outfit:"none", avatar:{gender:"boy", shirt:"#FF5C8A", pants:"#2B6CB0", shoes:"#FFC529", hat:"none", glasses:"none"} };
-try { var raw = localStorage.getItem(LSKEY); if (raw) { var p = JSON.parse(raw); if (p && typeof p==="object") S = Object.assign(S, p); if (!S.avatar) S.avatar = {gender:"boy", shirt:"#FF5C8A", pants:"#2B6CB0", shoes:"#FFC529", hat:"none", glasses:"none"}; if (!S.gear) { S.gear = {hat:"none", glasses:"none", cape:"none", extra:"none"}; if (S.outfit === "party") S.gear.hat = "party"; if (S.outfit === "crown") S.gear.hat = "crown"; if (S.outfit === "hero") S.gear.cape = "hero"; if (S.outfit === "cool") S.gear.glasses = "cool"; } } } catch(e){}
+try { var raw = localStorage.getItem(LSKEY); if (raw) { var p = JSON.parse(raw); if (p && typeof p==="object") S = Object.assign(S, p); if (!S.avatar) S.avatar = {gender:"boy", shirt:"#FF5C8A", pants:"#2B6CB0", shoes:"#FFC529", hat:"none", glasses:"none"}; if (!S.gear) { S.gear = {hat:"none", glasses:"none", cape:"none", outfit:"none", extra:"none"}; if (!S.gear.outfit) S.gear.outfit = "none"; if (S.outfit === "party") S.gear.hat = "party"; if (S.outfit === "crown") S.gear.hat = "crown"; if (S.outfit === "hero") S.gear.cape = "hero"; if (S.outfit === "cool") S.gear.glasses = "cool"; } } } catch(e){}
 function save(){ try { localStorage.setItem(LSKEY, JSON.stringify(S)); } catch(e){} }
 function learnedCount(){ return Object.keys(S.learned).filter(function(k){return S.learned[k];}).length; }
 function totalPoints(){ return learnedCount() + S.gamesWon; }
@@ -908,13 +908,14 @@ var GEAR = [
   {field:"hat", label:"🎩 Hat", opts:[{id:"none", label:"No hat"}, {id:"party", label:"🎉 Party Hat"}, {id:"crown", label:"👑 Crown"}, {id:"wizard", label:"🧙 Wizard Hat"}, {id:"pirate", label:"🏴‍☠️ Pirate Hat"}, {id:"cowboy", label:"🤠 Cowboy Hat"}, {id:"helmet", label:"🪖 Space Helmet"}, {id:"beanie", label:"🧢 Beanie"}]},
   {field:"glasses", label:"👓 Glasses", opts:[{id:"none", label:"No glasses"}, {id:"cool", label:"🕶️ Cool Shades"}, {id:"star", label:"⭐ Star Glasses"}, {id:"heart", label:"💗 Heart Glasses"}, {id:"round", label:"👓 Round Glasses"}]},
   {field:"cape", label:"🦸 Cape", opts:[{id:"none", label:"No cape"}, {id:"hero", label:"🦸 Red Hero Cape"}, {id:"blue", label:"💙 Blue Cape"}, {id:"purple", label:"💜 Purple Cape"}, {id:"green", label:"💚 Green Cape"}]},
-  {field:"extra", label:"✨ Extras", opts:[{id:"none", label:"No extra"}, {id:"bowtie", label:"🎀 Bow Tie"}, {id:"headphones", label:"🎧 Headphones"}, {id:"belt", label:"🥇 Champion Belt"}, {id:"wand", label:"🪄 Magic Wand"}]}
+  {field:"outfit", label:"👗 Full Outfits", opts:[{id:"none", label:"No outfit"}, {id:"cowboy", label:"🤠 Cowboy Outfit"}, {id:"ballerina", label:"🩰 Ballerina Outfit"}, {id:"space", label:"🚀 Space Outfit"}, {id:"pirate", label:"🏴‍☠️ Pirate Outfit"}]},
+  {field:"extra", label:"✨ Extras", opts:[{id:"none", label:"No extra"}, {id:"bowtie", label:"🎀 Bow Tie"}, {id:"headphones", label:"🎧 Headphones"}, {id:"belt", label:"🥇 Champion Belt"}, {id:"wand", label:"🪄 Magic Wand"}, {id:"jetpack", label:"🚀 Jet Pack"}]}
 ];
 function buddySVG(){
   var pts = totalPoints();
   var has = function(at){ return pts >= at; };
-  var g = (S.outfits && S.gear) ? S.gear : {hat:"none", glasses:"none", cape:"none", extra:"none"};
-  var hat = "", cape = "", shades = "", extra = "";
+  var g = (S.outfits && S.gear) ? S.gear : {hat:"none", glasses:"none", cape:"none", outfit:"none", extra:"none"}; if (!g.outfit) g.outfit = "none";
+  var hat = "", cape = "", shades = "", extra = "", outfit = "";
   if (g.hat === "party") hat = '<polygon points="100,6 78,52 122,52" fill="#FF5C8A"/><circle cx="100" cy="6" r="9" fill="#FFC529"/>';
   if (g.hat === "crown") hat = '<polygon points="66,50 66,22 84,38 100,16 116,38 134,22 134,50" fill="#FFC529" stroke="#D99A06" stroke-width="3"/>';
   if (g.hat === "wizard") hat = '<polygon points="100,2 78,52 122,52" fill="#805AD5"/><ellipse cx="100" cy="52" rx="34" ry="7" fill="#6B46C1"/><polygon points="100,14 106,26 94,26" fill="#FFC529"/>';
@@ -934,6 +935,11 @@ function buddySVG(){
   if (g.extra === "headphones") extra = '<path d="M58 84 Q58 38 100 38 Q142 38 142 84" fill="none" stroke="#1D2B2B" stroke-width="6"/><rect x="52" y="76" width="14" height="26" rx="7" fill="#1D2B2B"/><rect x="134" y="76" width="14" height="26" rx="7" fill="#1D2B2B"/>';
   if (g.extra === "belt") extra = '<rect x="56" y="176" width="88" height="12" fill="#FFC529"/><rect x="92" y="172" width="16" height="20" rx="3" fill="#D99A06" stroke="#FFF" stroke-width="2"/>';
   if (g.extra === "wand") extra = '<line x1="158" y1="124" x2="182" y2="92" stroke="#8B5A2B" stroke-width="4" stroke-linecap="round"/><polygon points="182,92 188,80 194,92 188,104" fill="#FFC529"/>';
+  if (g.extra === "jetpack") extra = '<rect x="38" y="122" width="18" height="52" rx="9" fill="#C0C0C0" stroke="#4A5A58" stroke-width="2"/><rect x="144" y="122" width="18" height="52" rx="9" fill="#C0C0C0" stroke="#4A5A58" stroke-width="2"/><polygon points="47,174 53,192 41,192" fill="#FF7A1F"/><polygon points="153,174 159,192 147,192" fill="#FFC529"/>';
+  if (g.outfit === "cowboy") outfit = '<rect x="56" y="118" width="88" height="84" rx="20" fill="#8B5A2B" opacity="0.85"/><rect x="92" y="118" width="16" height="84" fill="#A67C52"/><polygon points="88,126 100,134 88,142" fill="#E53E3E"/><polygon points="112,126 100,134 112,142" fill="#E53E3E"/>';
+  if (g.outfit === "ballerina") outfit = '<polygon points="100,16 110,8 116,18 106,22" fill="#FFC529"/><ellipse cx="100" cy="196" rx="52" ry="14" fill="#FF9EC6"/><ellipse cx="100" cy="188" rx="40" ry="10" fill="#FFC0DB"/>';
+  if (g.outfit === "space") outfit = '<rect x="56" y="118" width="88" height="84" rx="20" fill="#C0C0C0" opacity="0.9"/><circle cx="100" cy="150" r="14" fill="#2B6CB0"/><circle cx="100" cy="150" r="7" fill="#FFFFFF"/><rect x="64" y="176" width="72" height="8" fill="#4A5A58"/>';
+  if (g.outfit === "pirate") outfit = '<rect x="56" y="118" width="88" height="84" rx="20" fill="#FFFFFF" opacity="0.85"/><rect x="56" y="140" width="88" height="10" fill="#1D2B2B"/><rect x="56" y="168" width="88" height="10" fill="#1D2B2B"/><rect x="56" y="186" width="32" height="16" fill="#E53E3E"/>';
   /* Buddy is ALWAYS drawn in full — pieces not yet earned show as pale
      "ghost" pieces and fill in with color as points are earned, so Buddy
      is visible from the very first visit instead of an empty stage. */
@@ -955,6 +961,7 @@ function buddySVG(){
   head += shades + hat;
   s += piece(40, head);
   s += piece(20, extra);
+  s += piece(20, outfit);
   s += "</svg>";
   return s;
 }
@@ -1036,7 +1043,7 @@ function renderBuddyPet(){
   var oa = $("outfitArea"); oa.innerHTML = "";
   if (S.outfits) {
     var lbl = document.createElement("p"); lbl.className = "sub"; lbl.style.marginTop = "14px";
-    lbl.innerHTML = "<strong style='color:var(--ink)'>Outfits Pack unlocked 🎉 — 19 accessories!</strong> — mix and match a hat, glasses, cape AND an extra, all at the same time:";
+    lbl.innerHTML = "<strong style='color:var(--ink)'>Outfits Pack unlocked 🎉 — 24 accessories!</strong> — mix and match a hat, glasses, cape AND an extra, all at the same time:";
     oa.appendChild(lbl);
     GEAR.forEach(function(grp){
       var gl = document.createElement("div"); gl.style.fontWeight = "900"; gl.style.marginTop = "10px"; gl.textContent = grp.label; oa.appendChild(gl);
@@ -1052,7 +1059,7 @@ function renderBuddyPet(){
     });
   } else {
     var note = document.createElement("div"); note.className = "locknote";
-    note.textContent = "🔒 19 accessories are in the Buddy Outfits Pack — 7 hats, 4 glasses, 4 capes and 4 extras, mix and match them all at once! Grown-ups can get it in the Grown-ups tab for $4.99, one time. Buddy himself is always free.";
+    note.textContent = "🔒 24 accessories are in the Buddy Outfits Pack — 7 hats, 4 glasses, 4 capes, 4 full outfits and 5 extras, mix and match them all at once! Grown-ups can get it in the Grown-ups tab for $4.99, one time. Buddy himself is always free.";
     oa.appendChild(note);
   }
   /* pet */
