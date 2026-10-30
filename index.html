@@ -228,7 +228,8 @@
 
   <!-- ============ WORDS ============ -->
   <section class="panel on" id="panel-words" role="tabpanel" aria-labelledby="tab-words">
-    <div class="groups" id="groupChips" role="group" aria-label="Word groups"></div>
+    <div style="text-align:center;margin-bottom:10px"><label style="font-weight:900">🌍 Language / Idioma: <select id="langMode" style="font-size:16px;font-weight:900;padding:6px 10px;border-radius:12px"><option value="en">🇺🇸 English only</option><option value="es-en">🇲🇽 Español → English (learn English)</option><option value="en-es">🇺🇸 English → Español (learn Spanish)</option></select></label><div style="font-size:14px;color:#555;font-weight:700">Spanish kid learning English? Pick Español → English. English kid learning Spanish? Pick English → Español.</div></div>
+      <div class="groups" id="groupChips" role="group" aria-label="Word groups"></div>
 
     <div class="wordcard">
       <div class="wordcount" id="wordCount"></div>
@@ -238,6 +239,7 @@
         <canvas id="colorCanvas" width="600" height="600" aria-label="Coloring area — draw with your finger or mouse"></canvas>
       </div>
       <div class="bigword" id="wordText"></div>
+      <div class="sayphrase" id="wordTrans" style="color:#805AD5"></div>
       <div class="sayphrase" id="wordPhrase"></div>
       <div class="grownline" id="wordGrown"></div>
       <div class="star-row" id="wordStar" aria-live="polite"></div>
@@ -429,6 +431,62 @@ var W = [
 ];
 var WORDS = W.map(function(r){return {key:r[0],word:r[1],phrase:r[2],hear:r[3],grown:r[4],accept:r[5],group:r[6]};});
 var BYKEY = {}; WORDS.forEach(function(w){ BYKEY[w.key]=w; });
+var ESWORDS = {
+  "s01-dog":"PERRO",
+  "s02-cat":"GATO",
+  "s03-cow":"VACA",
+  "s04-duck":"PATO",
+  "s05-lion":"LEÓN",
+  "s06-frog":"RANA",
+  "s07-bee":"ABEJA",
+  "s08-train":"TREN",
+  "s09-car":"CARRO",
+  "s10-drum":"TAMBOR",
+  "w01-ball":"PELOTA",
+  "w02-apple":"MANZANA",
+  "w03-banana":"PLÁTANO",
+  "w04-cup":"TAZA",
+  "w05-sun":"SOL",
+  "w06-fish":"PEZ",
+  "w07-bird":"PÁJARO",
+  "w08-book":"LIBRO",
+  "w09-balloon":"GLOBO",
+  "w10-cookie":"GALLETA",
+  "a01-jump":"SALTAR",
+  "a02-run":"CORRER",
+  "a03-eat":"COMER",
+  "a04-drink":"BEBER",
+  "a05-sleep":"DORMIR",
+  "a06-play":"JUGAR",
+  "a07-read":"LEER",
+  "a08-swim":"NADAR",
+  "f01-happy":"FELIZ",
+  "f02-sad":"TRISTE",
+  "f03-angry":"ENOJADO",
+  "f04-scared":"ASUSTADO",
+  "f05-tired":"CANSADO",
+  "f06-excited":"EMOCIONADO",
+  "f07-calm":"TRANQUILO",
+  "f08-hurt":"DUELE",
+  "h01-help":"AYUDA",
+  "h02-more":"MÁS",
+  "h03-alldone":"TERMINADO",
+  "h04-please":"POR FAVOR",
+  "h05-thankyou":"GRACIAS",
+  "h06-hello":"HOLA",
+  "h07-byebye":"ADIÓS",
+  "h08-myturn":"MI TURNO",
+  "d01-wakeup":"DESPERTAR",
+  "d02-brushteeth":"CEPILLARSE LOS DIENTES",
+  "d03-breakfast":"DESAYUNO",
+  "d04-school":"ESCUELA",
+  "d05-bath":"HORA DEL BAÑO",
+  "d06-bedtime":"HORA DE DORMIR"
+};
+function esWord(w){ return ESWORDS[w.key] || w.word; }
+function targetWord(w){ return (S.langMode === "en-es") ? esWord(w) : w.word; }
+function speakSpanish(text, then){ if (!window.speechSynthesis) { if (then) then(); return; } var u = new SpeechSynthesisUtterance(text); u.lang = "es-ES"; u.rate = 0.9; var vs = speechSynthesis.getVoices().filter(function(v){ return v.lang && v.lang.toLowerCase().indexOf("es") === 0; }); if (vs.length) u.voice = vs[0]; u.onend = function(){ if (then) then(); }; u.onerror = function(){ if (then) then(); }; speechSynthesis.speak(u); }
+
 /* Picture fallback: if a word's picture file can't load on the copy being
    viewed, the child still gets a big picture — the word's emoji. */
 var EMOJI = {
@@ -450,7 +508,7 @@ function picErr(img){
 
 /* ---------- State (this browser only) ---------- */
 var LSKEY = "sayitbuddy-public-v1";
-var S = { learned:{}, gamesWon:0, pet:null, outfits:false, outfit:"none", avatar:{gender:"boy", shirt:"#FF5C8A", pants:"#2B6CB0", shoes:"#FFC529", hat:"none", glasses:"none"} };
+var S = { learned:{}, gamesWon:0, pet:null, outfits:false, outfit:"none", langMode:"en", avatar:{gender:"boy", shirt:"#FF5C8A", pants:"#2B6CB0", shoes:"#FFC529", hat:"none", glasses:"none"} };
 try { var raw = localStorage.getItem(LSKEY); if (raw) { var p = JSON.parse(raw); if (p && typeof p==="object") S = Object.assign(S, p); if (!S.avatar) S.avatar = {gender:"boy", shirt:"#FF5C8A", pants:"#2B6CB0", shoes:"#FFC529", hat:"none", glasses:"none"}; if (!S.gear) { S.gear = {hat:"none", glasses:"none", cape:"none", outfit:"none", extra:"none"}; if (!S.gear.outfit) S.gear.outfit = "none"; if (S.outfit === "party") S.gear.hat = "party"; if (S.outfit === "crown") S.gear.hat = "crown"; if (S.outfit === "hero") S.gear.cape = "hero"; if (S.outfit === "cool") S.gear.glasses = "cool"; } } } catch(e){}
 function save(){ try { localStorage.setItem(LSKEY, JSON.stringify(S)); } catch(e){} }
 function learnedCount(){ return Object.keys(S.learned).filter(function(k){return S.learned[k];}).length; }
@@ -689,7 +747,7 @@ function play(file, then, sayText){
     }
   } catch(e){ fail(); }
 }
-function playWord(w, then){ play("word-" + w.key + ".mp3", then, w.hear); }
+function playWord(w, then){ if (S.langMode === "en-es") { speakSpanish(esWord(w).toLowerCase(), then); return; } play("word-" + w.key + ".mp3", then, w.hear); }
 function playSaid(w){ play("said-" + w.key + ".mp3", null, "Great job! You said " + w.word.toLowerCase() + "!"); }
 function refreshStats(){
   $("statStars").textContent = totalPoints();
@@ -708,6 +766,8 @@ document.querySelectorAll(".tab").forEach(function(t){
   });
 });
 
+$("langMode").value = S.langMode || "en";
+$("langMode").addEventListener("change", function(){ S.langMode = this.value; save(); renderWord(); });
 /* ---------- Words ---------- */
 var curGroup = "sounds", curIdx = 0;
 function groupWords(){ return WORDS.filter(function(w){ return w.group === curGroup; }); }
@@ -739,8 +799,9 @@ function renderWord(){
   };
   wi.src = "assets/words/" + w.key + ".png";
   wi.alt = "Picture to color: " + w.word.toLowerCase();
-  $("wordText").textContent = w.word;
-  $("wordPhrase").textContent = "Say: " + w.phrase;
+  $("wordText").textContent = targetWord(w);
+  $("wordPhrase").textContent = (S.langMode === "en-es") ? ("Di: " + esWord(w)) : ("Say: " + w.phrase);
+  $("wordTrans").textContent = (S.langMode === "es-en") ? ("En español: " + esWord(w)) : ((S.langMode === "en-es") ? ("In English: " + w.word) : "");
   $("wordGrown").textContent = w.grown;
   $("wordStar").innerHTML = S.learned[w.key] ? '<span class="star-pop">⭐</span> You earned this star!' : "";
   $("wordMsg").textContent = ""; $("wordMsg").className = "msg";
@@ -790,13 +851,13 @@ function startListening(w){
   }
   try {
     if (recog) { try{ recog.abort(); }catch(e){} }
-    recog = new SR(); recog.lang = "en-US"; recog.interimResults = false; recog.maxAlternatives = 3;
+    recog = new SR(); recog.lang = (S.langMode === "en-es") ? "es-ES" : "en-US"; recog.interimResults = false; recog.maxAlternatives = 3;
     var done = false;
     recog.onresult = function(ev){
       done = true;
       var heard = "";
       for (var i=0;i<ev.results.length;i++) for (var j=0;j<ev.results[i].length;j++) heard += " " + ev.results[i][j].transcript.toLowerCase();
-      var ok = w.accept.some(function(a){ return heard.indexOf(a) >= 0; });
+      var ok = (S.langMode === "en-es") ? (heard.indexOf(esWord(w).toLowerCase()) >= 0) : w.accept.some(function(a){ return heard.indexOf(a) >= 0; });
       if (ok) { $("wordMsg").textContent = "🎉 I heard you! Great job!"; earnWord(); }
       else { $("wordMsg").textContent = "💪 Good trying! Every try counts — tap “I Said It!” for your star."; }
     };
