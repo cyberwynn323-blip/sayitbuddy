@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="color-scheme" content="light dark" />
-<meta name="description" content="Say It Buddy — a free, calm speech practice app for children with autism and speech delays. All 50 words free forever: hear it, say it, color it, earn it. A pet that grows, Buddy the robot, and gentle games. No ads, no timers, no subscription." />
+<meta name="description" content="Say It Buddy — a free, calm speech practice app for children with autism and speech delays. All 100 words free forever: hear it, say it, color it, earn it. A pet that grows, Buddy the robot, and gentle games. No ads, no timers, no subscription." />
 <link rel="icon" href="data:," />
 <title>Say It Buddy — Free Speech Practice for Kids</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -229,6 +229,7 @@
   <!-- ============ WORDS ============ -->
   <section class="panel on" id="panel-words" role="tabpanel" aria-labelledby="tab-words">
     <div style="text-align:center;margin-bottom:10px"><label style="font-weight:900">🌍 Language / Idioma: <select id="langMode" style="font-size:16px;font-weight:900;padding:6px 10px;border-radius:12px"><option value="en">🇺🇸 English only</option><option value="es-en">🇲🇽 Español → English (learn English)</option><option value="en-es">🇺🇸 English → Español (learn Spanish)</option></select></label><div style="font-size:14px;color:#555;font-weight:700">Spanish kid learning English? Pick Español → English. English kid learning Spanish? Pick English → Español.</div></div>
+      <div class="groups" id="levelChips" role="group" aria-label="Levels" style="justify-content:center"><button class="gchip" id="levelBtn1" aria-pressed="true">⭐ Level 1 — My First Words</button><button class="gchip" id="levelBtn2" aria-pressed="false">🍎 Level 2 — Food &amp; School</button></div>
       <div class="groups" id="groupChips" role="group" aria-label="Word groups"></div>
 
     <div class="wordcard">
@@ -323,7 +324,7 @@
       <div class="paybanner">PAY HERE — $4.99</div>
       <div class="paybody">
         <h2>Pay for Buddy's Outfits Pack</h2>
-        <p>The <strong>only</strong> paid extra in Say It Buddy: extra outfits for Buddy the robot. One-time $4.99 — not a subscription, no recurring billing. All 50 words, the pet, and every game stay free forever, whether you buy this or not.</p>
+        <p>The <strong>only</strong> paid extra in Say It Buddy: extra outfits for Buddy the robot. One-time $4.99 — not a subscription, no recurring billing. All 100 words, the pet, and every game stay free forever, whether you buy this or not.</p>
         <div id="gateArea">
           <div class="dashed-marker">Pay $4.99 with Stripe — shows here after the grown-up check 👇</div>
           <p class="gate-step">Step 1 — Press &amp; hold the button</p>
@@ -347,7 +348,7 @@
     <div class="grown-card">
       <h2>How Say It Buddy works</h2>
       <ul>
-        <li><strong>All 50 words are free forever</strong> — the full word set from <em>Say It &amp; Color It!</em> by Luke Wynn. Nothing about learning is ever locked.</li>
+        <li><strong>All 100 words are free forever — 50 in Level 1 and 50 in Level 2</strong> — the full word set from <em>Say It &amp; Color It!</em> by Luke Wynn. Nothing about learning is ever locked.</li>
         <li><strong>Hear It</strong> plays the word in a recorded man's voice. <strong>Say It</strong> plays the word once first, then opens the microphone and listens for your child to say it — and the <strong>“I said it!”</strong> button always works if a microphone is blocked or hears nothing. Trying always earns the star; there are no wrong answers.</li>
         <li><strong>Calm by design:</strong> no flashing, no timers, no punishment, no game over, no ads, no accounts, no subscription.</li>
         <li><strong>Progress stays on this device:</strong> stars, learned words, your child's pet, and the outfits unlock are saved only in this browser on this device. Nothing is sent anywhere or collected.</li>
@@ -377,6 +378,8 @@ var GROUPS = [
   {id:"help", title:"Words That Help Me"},
   {id:"day", title:"My Day"}
 ];
+var LEVEL_GROUPS = {1:["sounds","first","actions","feelings","help","day"], 2:["food","school"]};
+GROUPS.push({id:"food", title:"Food Words"}, {id:"school", title:"School Words"});
 var W = [
  ["s01-dog","DOG","woof!","Dog! woof!","Point to the dog. Color the dog!",["dog","woof","ruff","bark"],"sounds"],
  ["s02-cat","CAT","meow!","Cat! meow!","Point to the cat. Color the cat!",["cat","meow","kitty"],"sounds"],
@@ -427,9 +430,59 @@ var W = [
  ["d03-breakfast","BREAKFAST","Breakfast!","Breakfast!","Yummy breakfast. Color the picture.",["breakfast"],"day"],
  ["d04-school","SCHOOL","School!","School!","Time for school. Color the picture.",["school"],"day"],
  ["d05-bath","BATH TIME","Bath time!","Bath time!","Splish splash! Color the picture.",["bath","bath time"],"day"],
- ["d06-bedtime","BEDTIME","Bedtime.","Bedtime.","Good night. Color the picture.",["bedtime","bed","night","good night"],"day"]
+ ["d06-bedtime","BEDTIME","Bedtime.","Bedtime.","Good night. Color the picture.",["bedtime","bed","night","good night"],"day"],
+ ["fd01-pizza","PIZZA","pizza","pizza","Point to the pizza. Color the pizza!",["pizza"],"food",2],
+ ["fd02-cheese","CHEESE","cheese","cheese","Point to the cheese. Color the cheese!",["cheese"],"food",2],
+ ["fd03-bread","BREAD","bread","bread","Point to the bread. Color the bread!",["bread"],"food",2],
+ ["fd04-milk","MILK","milk","milk","Point to the milk. Color the milk!",["milk"],"food",2],
+ ["fd05-juice","JUICE","juice","juice","Point to the juice. Color the juice!",["juice"],"food",2],
+ ["fd06-egg","EGG","egg","egg","Point to the egg. Color the egg!",["egg"],"food",2],
+ ["fd07-rice","RICE","rice","rice","Point to the rice. Color the rice!",["rice"],"food",2],
+ ["fd08-pasta","PASTA","pasta","pasta","Point to the pasta. Color the pasta!",["pasta"],"food",2],
+ ["fd09-carrot","CARROT","carrot","carrot","Point to the carrot. Color the carrot!",["carrot"],"food",2],
+ ["fd10-grapes","GRAPES","grapes","grapes","Point to the grapes. Color the grapes!",["grapes", "grape"],"food",2],
+ ["fd11-orange","ORANGE","orange","orange","Point to the orange. Color the orange!",["orange"],"food",2],
+ ["fd12-strawberry","STRAWBERRY","strawberry","strawberry","Point to the strawberry. Color the strawberry!",["strawberry"],"food",2],
+ ["fd13-chicken","CHICKEN","chicken","chicken","Point to the chicken. Color the chicken!",["chicken"],"food",2],
+ ["fd14-corn","CORN","corn","corn","Point to the corn. Color the corn!",["corn"],"food",2],
+ ["fd15-peas","PEAS","peas","peas","Point to the peas. Color the peas!",["peas", "pea"],"food",2],
+ ["fd16-potato","POTATO","potato","potato","Point to the potato. Color the potato!",["potato"],"food",2],
+ ["fd17-cake","CAKE","cake","cake","Point to the cake. Color the cake!",["cake"],"food",2],
+ ["fd18-icecream","ICE CREAM","ice cream","ice cream","Point to the ice cream. Color the ice cream!",["ice cream"],"food",2],
+ ["fd19-sandwich","SANDWICH","sandwich","sandwich","Point to the sandwich. Color the sandwich!",["sandwich"],"food",2],
+ ["fd20-soup","SOUP","soup","soup","Point to the soup. Color the soup!",["soup"],"food",2],
+ ["fd21-yogurt","YOGURT","yogurt","yogurt","Point to the yogurt. Color the yogurt!",["yogurt", "yoghurt"],"food",2],
+ ["fd22-peanutbutter","PEANUT BUTTER","peanut butter","peanut butter","Point to the peanut butter. Color the peanut butter!",["peanut butter"],"food",2],
+ ["fd23-honey","HONEY","honey","honey","Point to the honey. Color the honey!",["honey"],"food",2],
+ ["fd24-popcorn","POPCORN","popcorn","popcorn","Point to the popcorn. Color the popcorn!",["popcorn"],"food",2],
+ ["fd25-water","WATER","water","water","Point to the water. Color the water!",["water"],"food",2],
+ ["sc01-teacher","TEACHER","teacher","teacher","Point to the teacher. Color the teacher!",["teacher"],"school",2],
+ ["sc02-pencil","PENCIL","pencil","pencil","Point to the pencil. Color the pencil!",["pencil"],"school",2],
+ ["sc03-crayon","CRAYON","crayon","crayon","Point to the crayon. Color the crayon!",["crayon"],"school",2],
+ ["sc04-paper","PAPER","paper","paper","Point to the paper. Color the paper!",["paper"],"school",2],
+ ["sc05-scissors","SCISSORS","scissors","scissors","Point to the scissors. Color the scissors!",["scissors"],"school",2],
+ ["sc06-glue","GLUE","glue","glue","Point to the glue. Color the glue!",["glue"],"school",2],
+ ["sc07-backpack","BACKPACK","backpack","backpack","Point to the backpack. Color the backpack!",["backpack"],"school",2],
+ ["sc08-desk","DESK","desk","desk","Point to the desk. Color the desk!",["desk"],"school",2],
+ ["sc09-chair","CHAIR","chair","chair","Point to the chair. Color the chair!",["chair"],"school",2],
+ ["sc10-classroom","CLASSROOM","classroom","classroom","Point to the classroom. Color the classroom!",["classroom"],"school",2],
+ ["sc11-playground","PLAYGROUND","playground","playground","Point to the playground. Color the playground!",["playground"],"school",2],
+ ["sc12-friend","FRIEND","friend","friend","Point to the friend. Color the friend!",["friend"],"school",2],
+ ["sc13-lesson","LESSON","lesson","lesson","Point to the lesson. Color the lesson!",["lesson"],"school",2],
+ ["sc14-letter","LETTER","letter","letter","Point to the letter. Color the letter!",["letter"],"school",2],
+ ["sc15-number","NUMBER","number","number","Point to the number. Color the number!",["number"],"school",2],
+ ["sc16-shape","SHAPE","shape","shape","Point to the shape. Color the shape!",["shape"],"school",2],
+ ["sc17-color","COLOR","color","color","Point to the color. Color the color!",["color", "colour"],"school",2],
+ ["sc18-story","STORY","story","story","Point to the story. Color the story!",["story"],"school",2],
+ ["sc19-song","SONG","song","song","Point to the song. Color the song!",["song"],"school",2],
+ ["sc20-game","GAME","game","game","Point to the game. Color the game!",["game"],"school",2],
+ ["sc21-puzzle","PUZZLE","puzzle","puzzle","Point to the puzzle. Color the puzzle!",["puzzle"],"school",2],
+ ["sc22-blocks","BLOCKS","blocks","blocks","Point to the blocks. Color the blocks!",["blocks", "block"],"school",2],
+ ["sc23-paint","PAINT","paint","paint","Point to the paint. Color the paint!",["paint"],"school",2],
+ ["sc24-marker","MARKER","marker","marker","Point to the marker. Color the marker!",["marker"],"school",2],
+ ["sc25-ruler","RULER","ruler","ruler","Point to the ruler. Color the ruler!",["ruler"],"school",2],
 ];
-var WORDS = W.map(function(r){return {key:r[0],word:r[1],phrase:r[2],hear:r[3],grown:r[4],accept:r[5],group:r[6]};});
+var WORDS = W.map(function(r){return {key:r[0],word:r[1],phrase:r[2],hear:r[3],grown:r[4],accept:r[5],group:r[6],level:r[7]||1};});
 var BYKEY = {}; WORDS.forEach(function(w){ BYKEY[w.key]=w; });
 var ESWORDS = {
   "s01-dog":"PERRO",
@@ -481,7 +534,57 @@ var ESWORDS = {
   "d03-breakfast":"DESAYUNO",
   "d04-school":"ESCUELA",
   "d05-bath":"HORA DEL BAÑO",
-  "d06-bedtime":"HORA DE DORMIR"
+  "d06-bedtime":"HORA DE DORMIR",
+  "fd01-pizza":"PIZZA",
+  "fd02-cheese":"QUESO",
+  "fd03-bread":"PAN",
+  "fd04-milk":"LECHE",
+  "fd05-juice":"JUGO",
+  "fd06-egg":"HUEVO",
+  "fd07-rice":"ARROZ",
+  "fd08-pasta":"PASTA",
+  "fd09-carrot":"ZANAHORIA",
+  "fd10-grapes":"UVAS",
+  "fd11-orange":"NARANJA",
+  "fd12-strawberry":"FRESA",
+  "fd13-chicken":"POLLO",
+  "fd14-corn":"MAÍZ",
+  "fd15-peas":"GUISANTES",
+  "fd16-potato":"PAPA",
+  "fd17-cake":"PASTEL",
+  "fd18-icecream":"HELADO",
+  "fd19-sandwich":"SÁNDWICH",
+  "fd20-soup":"SOPA",
+  "fd21-yogurt":"YOGUR",
+  "fd22-peanutbutter":"MANTEQUILLA DE MANÍ",
+  "fd23-honey":"MIEL",
+  "fd24-popcorn":"PALOMITAS",
+  "fd25-water":"AGUA",
+  "sc01-teacher":"MAESTRO",
+  "sc02-pencil":"LÁPIZ",
+  "sc03-crayon":"CRAYÓN",
+  "sc04-paper":"PAPEL",
+  "sc05-scissors":"TIJERAS",
+  "sc06-glue":"PEGAMENTO",
+  "sc07-backpack":"MOCHILA",
+  "sc08-desk":"ESCRITORIO",
+  "sc09-chair":"SILLA",
+  "sc10-classroom":"SALÓN DE CLASES",
+  "sc11-playground":"PATIO DE JUEGOS",
+  "sc12-friend":"AMIGO",
+  "sc13-lesson":"LECCIÓN",
+  "sc14-letter":"LETRA",
+  "sc15-number":"NÚMERO",
+  "sc16-shape":"FORMA",
+  "sc17-color":"COLOR",
+  "sc18-story":"CUENTO",
+  "sc19-song":"CANCIÓN",
+  "sc20-game":"JUEGO",
+  "sc21-puzzle":"ROMPECABEZAS",
+  "sc22-blocks":"BLOQUES",
+  "sc23-paint":"PINTURA",
+  "sc24-marker":"MARCADOR",
+  "sc25-ruler":"REGLA"
 };
 function esWord(w){ return ESWORDS[w.key] || w.word; }
 function targetWord(w){ return (S.langMode === "en-es") ? esWord(w) : w.word; }
@@ -495,7 +598,57 @@ var EMOJI = {
  "a01-jump":"🦘","a02-run":"🏃","a03-eat":"🍽️","a04-drink":"🧃","a05-sleep":"😴","a06-play":"🧸","a07-read":"📚","a08-swim":"🏊",
  "f01-happy":"😀","f02-sad":"😢","f03-angry":"😠","f04-scared":"😨","f05-tired":"🥱","f06-excited":"🤩","f07-calm":"😌","f08-hurt":"🤕",
  "h01-help":"🙋","h02-more":"➕","h03-alldone":"🙌","h04-please":"🥺","h05-thankyou":"🙏","h06-hello":"👋","h07-byebye":"🖐️","h08-myturn":"☝️",
- "d01-wakeup":"🌅","d02-brushteeth":"🪥","d03-breakfast":"🥞","d04-school":"🎒","d05-bath":"🛁","d06-bedtime":"🌙"
+ "d01-wakeup":"🌅","d02-brushteeth":"🪥","d03-breakfast":"🥞","d04-school":"🎒","d05-bath":"🛁","d06-bedtime":"🌙",
+ "fd01-pizza":"🍕",
+ "fd02-cheese":"🧀",
+ "fd03-bread":"🍞",
+ "fd04-milk":"🥛",
+ "fd05-juice":"🧃",
+ "fd06-egg":"🥚",
+ "fd07-rice":"🍚",
+ "fd08-pasta":"🍝",
+ "fd09-carrot":"🥕",
+ "fd10-grapes":"🍇",
+ "fd11-orange":"🍊",
+ "fd12-strawberry":"🍓",
+ "fd13-chicken":"🍗",
+ "fd14-corn":"🌽",
+ "fd15-peas":"🫛",
+ "fd16-potato":"🥔",
+ "fd17-cake":"🍰",
+ "fd18-icecream":"🍦",
+ "fd19-sandwich":"🥪",
+ "fd20-soup":"🍲",
+ "fd21-yogurt":"🥣",
+ "fd22-peanutbutter":"🥜",
+ "fd23-honey":"🍯",
+ "fd24-popcorn":"🍿",
+ "fd25-water":"💧",
+ "sc01-teacher":"👩‍🏫",
+ "sc02-pencil":"✏️",
+ "sc03-crayon":"🖍️",
+ "sc04-paper":"📄",
+ "sc05-scissors":"✂️",
+ "sc06-glue":"🧴",
+ "sc07-backpack":"🎒",
+ "sc08-desk":"🧑‍💻",
+ "sc09-chair":"🪑",
+ "sc10-classroom":"🏫",
+ "sc11-playground":"🛝",
+ "sc12-friend":"🧒",
+ "sc13-lesson":"📚",
+ "sc14-letter":"🔤",
+ "sc15-number":"🔢",
+ "sc16-shape":"🔷",
+ "sc17-color":"🎨",
+ "sc18-story":"📖",
+ "sc19-song":"🎵",
+ "sc20-game":"🎲",
+ "sc21-puzzle":"🧩",
+ "sc22-blocks":"🧱",
+ "sc23-paint":"🖌️",
+ "sc24-marker":"🖊️",
+ "sc25-ruler":"📏",
 };
 function picErr(img){
   var s = document.createElement("span");
@@ -512,6 +665,7 @@ var S = { learned:{}, gamesWon:0, pet:null, outfits:false, outfit:"none", langMo
 try { var raw = localStorage.getItem(LSKEY); if (raw) { var p = JSON.parse(raw); if (p && typeof p==="object") S = Object.assign(S, p); if (!S.avatar) S.avatar = {gender:"boy", shirt:"#FF5C8A", pants:"#2B6CB0", shoes:"#FFC529", hat:"none", glasses:"none"}; if (!S.gear) { S.gear = {hat:"none", glasses:"none", cape:"none", outfit:"none", extra:"none"}; if (!S.gear.outfit) S.gear.outfit = "none"; if (S.outfit === "party") S.gear.hat = "party"; if (S.outfit === "crown") S.gear.hat = "crown"; if (S.outfit === "hero") S.gear.cape = "hero"; if (S.outfit === "cool") S.gear.glasses = "cool"; } } } catch(e){}
 function save(){ try { localStorage.setItem(LSKEY, JSON.stringify(S)); } catch(e){} }
 function learnedCount(){ return Object.keys(S.learned).filter(function(k){return S.learned[k];}).length; }
+function learnedLevelCount(){ return WORDS.filter(function(w){ return w.level === curLevel && S.learned[w.key]; }).length; }
 function totalPoints(){ return learnedCount() + S.gamesWon; }
 
 var $ = function(id){ return document.getElementById(id); };
@@ -751,7 +905,7 @@ function playWord(w, then){ if (S.langMode === "en-es") { speakSpanish(esWord(w)
 function playSaid(w){ play("said-" + w.key + ".mp3", null, "Great job! You said " + w.word.toLowerCase() + "!"); }
 function refreshStats(){
   $("statStars").textContent = totalPoints();
-  $("statWords").textContent = learnedCount();
+  $("statWords").textContent = learnedLevelCount();
   $("statGames").textContent = S.gamesWon;
 }
 
@@ -769,12 +923,25 @@ document.querySelectorAll(".tab").forEach(function(t){
 $("langMode").value = S.langMode || "en";
 $("langMode").addEventListener("change", function(){ S.langMode = this.value; save(); renderWord(); });
 /* ---------- Words ---------- */
-var curGroup = "sounds", curIdx = 0;
-function groupWords(){ return WORDS.filter(function(w){ return w.group === curGroup; }); }
+var curLevel = (S.level === 2) ? 2 : 1;
+var curGroup = LEVEL_GROUPS[curLevel][0], curIdx = 0;
+function renderLevelButtons(){
+  $("levelBtn1").setAttribute("aria-pressed", curLevel === 1 ? "true" : "false");
+  $("levelBtn2").setAttribute("aria-pressed", curLevel === 2 ? "true" : "false");
+}
+function setLevel(l){
+  curLevel = l; S.level = l; save();
+  curGroup = LEVEL_GROUPS[curLevel][0]; curIdx = 0;
+  renderLevelButtons(); renderGroups(); renderWord(); refreshStats();
+}
+$("levelBtn1").addEventListener("click", function(){ setLevel(1); });
+$("levelBtn2").addEventListener("click", function(){ setLevel(2); });
+function groupWords(){ return WORDS.filter(function(w){ return w.level === curLevel && w.group === curGroup; }); }
 function renderGroups(){
   var gc = $("groupChips"); gc.innerHTML = "";
-  GROUPS.forEach(function(g){
-    var list = WORDS.filter(function(w){ return w.group===g.id; });
+  LEVEL_GROUPS[curLevel].forEach(function(gid){
+    var g = GROUPS.filter(function(x){ return x.id === gid; })[0];
+    var list = WORDS.filter(function(w){ return w.level === curLevel && w.group===g.id; });
     var done = list.filter(function(w){ return S.learned[w.key]; }).length;
     var b = document.createElement("button");
     b.className = "gchip"; b.setAttribute("aria-pressed", g.id===curGroup ? "true":"false");
@@ -1461,5 +1628,10 @@ renderBuddyPet();
 <script src="assets/vincent-3.js"></script>
 <script src="assets/vincent-4.js"></script>
 <script src="assets/vincent-5.js"></script>
+<script src="assets/vincent-6.js"></script>
+<script src="assets/vincent-7.js"></script>
+<script src="assets/vincent-8.js"></script>
+<script src="assets/vincent-9.js"></script>
+<script src="assets/vincent-10.js"></script>
 <script>document.addEventListener("DOMContentLoaded", function(){ try{ renderAvatar(); var fb=$("feedPetBtn"); if(fb) fb.addEventListener("click", feedPet); }catch(e){} });</script></body>
 </html>
