@@ -321,27 +321,11 @@
   <section class="panel" id="panel-grown" role="tabpanel" aria-labelledby="tab-grown">
 
     <div class="paycard">
-      <div class="paybanner">PAY HERE — $4.99</div>
+      <div class="paybanner">FREE — EVERYTHING IS FREE NOW</div>
       <div class="paybody">
-        <h2>Pay for Buddy's Outfits Pack</h2>
-        <p>The <strong>only</strong> paid extra in Say It Buddy: extra outfits for Buddy the robot. One-time $4.99 — not a subscription, no recurring billing. All 150 words, the pet, and every game stay free forever, whether you buy this or not.</p>
-        <div id="gateArea">
-          <div class="dashed-marker">Pay $4.99 with Stripe — shows here after the grown-up check 👇</div>
-          <p class="gate-step">Step 1 — Press &amp; hold the button</p>
-          <button class="hold-btn" id="holdBtn"><span class="hold-fill" id="holdFill"></span><span style="position:relative">Press &amp; hold — I am a grown-up</span></button>
-          <div id="mathArea" style="display:none">
-            <p class="gate-step">Step 2 — Answer one question</p>
-            <div class="mathrow"><span class="mathq" id="mathQ"></span><span id="mathOpts" style="display:flex;gap:8px;flex-wrap:wrap"></span></div>
-          </div>
-        </div>
-        <div id="payArea" style="display:none">
-          <p class="gate-step">Step 3 — Pay here</p>
-          <div id="payUnlocked"></div>
-          <div id="payButtons">
-            <a class="stripe-btn" href="https://buy.stripe.com/cNi6oHdTG93BavU93l7Re00" target="_blank" rel="noopener">Pay $4.99 with Stripe 💳</a>
-            <p style="margin-top:10px;font-size:14px">Payments are handled securely by Stripe. When your payment goes through, Stripe sends you back to this page and the outfits pack turns on by itself, on this device — there is no unlock button, so the pack can only turn on after a real payment. You can check any payment any time in your Stripe dashboard.</p>
-          </div>
-        </div>
+        <h2>Everything is free now</h2>
+        <p>The Buddy Outfits Pack is free for everyone now — all 24 hats, glasses, capes, outfits and extras, mix and match. No payment, ever. All 150 words, the pet, and every game were already free, and they stay free.</p>
+        <div class="unlocked-banner">✅ All outfits unlocked — pick Buddy's outfit in the Buddy &amp; Pet tab!</div>
       </div>
     </div>
 
@@ -352,7 +336,7 @@
         <li><strong>Hear It</strong> plays the word in a recorded man's voice. <strong>Say It</strong> plays the word once first, then opens the microphone and listens for your child to say it — and the <strong>“I said it!”</strong> button always works if a microphone is blocked or hears nothing. Trying always earns the star; there are no wrong answers.</li>
         <li><strong>Calm by design:</strong> no flashing, no timers, no punishment, no game over, no ads, no accounts, no subscription.</li>
         <li><strong>Progress stays on this device:</strong> stars, learned words, your child's pet, and the outfits unlock are saved only in this browser on this device. Nothing is sent anywhere or collected.</li>
-        <li><strong>The only paid extra</strong> is the Buddy Outfits Pack above — $4.99 one time, for grown-ups only, in this Grown-ups area. Children never see a buy button.</li>
+        <li><strong>Everything is free:</strong> there is no paid extra anywhere in Say It Buddy — the Buddy Outfits Pack is free for everyone now. Children never see a buy button, because there isn't one.</li>
       </ul>
       <p style="margin-top:12px">Say It Buddy was made by Luke Wynn of Modesto, California — a dad who wrote <em>Say It &amp; Color It!</em> for his own son, and built this app so other families could use it too.</p>
       <button class="reset-btn" id="resetBtn">Start fresh — clear all progress on this device</button>
@@ -363,7 +347,7 @@
 <footer>
   <div class="wrap">
     <p><strong style="color:var(--ink)">Say It Buddy</strong> — speech practice for children with autism and speech delays. From <em>Say It &amp; Color It!</em> by Luke Wynn.</p>
-    <p>All 150 words free forever • No ads • No subscription • No accounts • Optional Buddy Outfits Pack: $4.99 one-time, grown-ups only • Progress saves in your own browser only</p>
+    <p>All 150 words free forever • No ads • No subscription • No accounts • Buddy Outfits Pack: free for everyone • Progress saves in your own browser only</p>
   </div>
 </footer>
 
@@ -813,6 +797,10 @@ function picErr(img){
 var LSKEY = "sayitbuddy-public-v1";
 var S = { learned:{}, gamesWon:0, pet:null, outfits:false, outfit:"none", langMode:"en", avatar:{gender:"boy", shirt:"#FF5C8A", pants:"#2B6CB0", shoes:"#FFC529", hat:"none", glasses:"none"} };
 try { var raw = localStorage.getItem(LSKEY); if (raw) { var p = JSON.parse(raw); if (p && typeof p==="object") S = Object.assign(S, p); if (!S.avatar) S.avatar = {gender:"boy", shirt:"#FF5C8A", pants:"#2B6CB0", shoes:"#FFC529", hat:"none", glasses:"none"}; if (!S.gear) { S.gear = {hat:"none", glasses:"none", cape:"none", outfit:"none", extra:"none"}; if (!S.gear.outfit) S.gear.outfit = "none"; if (S.outfit === "party") S.gear.hat = "party"; if (S.outfit === "crown") S.gear.hat = "crown"; if (S.outfit === "hero") S.gear.cape = "hero"; if (S.outfit === "cool") S.gear.glasses = "cool"; } } } catch(e){}
+/* Totally free now (Nov 17, 2026): the Buddy Outfits Pack is free for
+   everyone — no payment, ever. Force it on for every device, including
+   devices that saved the old locked state. */
+S.outfits = true;
 function save(){ try { localStorage.setItem(LSKEY, JSON.stringify(S)); } catch(e){} }
 function learnedCount(){ return Object.keys(S.learned).filter(function(k){return S.learned[k];}).length; }
 function learnedLevelCount(){ return WORDS.filter(function(w){ return w.level === curLevel && S.learned[w.key]; }).length; }
@@ -1439,7 +1427,7 @@ function renderBuddyPet(){
     });
   } else {
     var note = document.createElement("div"); note.className = "locknote";
-    note.textContent = "🔒 24 accessories are in the Buddy Outfits Pack — 7 hats, 4 glasses, 4 capes, 4 full outfits and 5 extras, mix and match them all at once! Grown-ups can get it in the Grown-ups tab for $4.99, one time. Buddy himself is always free.";
+    note.textContent = "🎉 24 accessories in the Buddy Outfits Pack — 7 hats, 4 glasses, 4 capes, 4 full outfits and 5 extras, mix and match them all at once! All free for everyone. Buddy himself is always free.";
     oa.appendChild(note);
   }
   /* pet */
@@ -1684,6 +1672,7 @@ var gatePassed = false;
 (function initGate(){
   if (S.outfits) { /* still require gate to view pay area; unlock state shows inside */ }
   var holdBtn = $("holdBtn"), fill = $("holdFill");
+  if (!holdBtn) return; /* Pay area removed — totally free now, no grown-up gate needed */
   var start = null, timer = null;
   function begin(ev){
     ev.preventDefault();
@@ -1728,6 +1717,7 @@ var gatePassed = false;
   window.__showMath = showMath;
 })();
 function renderPayState(){
+  if (!$("payUnlocked")) return; /* Pay area removed — totally free now */
   if (S.outfits) {
     $("payUnlocked").innerHTML = '<div class="unlocked-banner">✅ Gear pack unlocked on this device — pick Buddy\'s outfit in the Buddy &amp; Pet tab!</div>';
     $("payButtons").style.display = "none";
@@ -1736,12 +1726,10 @@ function renderPayState(){
     $("payButtons").style.display = "block";
   }
 }
-/* Outfits pack unlock — there is NO unlock button and NO free unlock in
-   this public build. The pack turns on only when Stripe sends the buyer
-   back to this page after a completed payment, which lands here with
-   ?paid=1 in the address. That signal is read once, the pack is turned on
-   for this device, and the address bar is cleaned so the signal is not
-   left sitting in the URL or browser history. */
+/* The Outfits Pack is free for everyone now (Nov 17, 2026) — no payment,
+   ever. S.outfits is forced on at load. This handler only cleans an old
+   ?paid=1 signal out of the address bar, for anyone arriving from an old
+   Stripe payment link. */
 (function stripeReturn(){
   try {
     var q = new URLSearchParams(window.location.search);
